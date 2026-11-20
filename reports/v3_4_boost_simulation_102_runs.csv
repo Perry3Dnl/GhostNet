@@ -1,0 +1,103 @@
+stage,boost_mode,strategy,zero_day_hours,btc_earned,purchased_levels,max_level,final_tier,longest_purchase_gap_minutes
+1,free,No purchases,0.5232,103.9776,0,0,5,31.39
+1,ads,No purchases,0.488,381.8491,0,0,5,29.28
+1,pc,No purchases,0.4837,1374.4774,0,0,5,29.02
+2,free,No purchases,6.3958,4833352.5503,0,0,10,383.75
+2,ads,No purchases,6.35,12548706.5009,0,0,10,381.0
+2,pc,No purchases,6.3455,21400924.7762,0,0,10,380.73
+1,free,Overclocked Laptop,0.5062,127.6608,3098,3098,5,0.13
+1,ads,Overclocked Laptop,0.4847,419.4534,3794,3794,5,0.09
+1,pc,Overclocked Laptop,0.4815,1402.5647,4629,4629,5,0.05
+2,free,Overclocked Laptop,6.3662,5403823.7485,9999,9999,10,101.31
+2,ads,Overclocked Laptop,6.3409,12525153.7806,9999,9999,10,124.45
+2,pc,Overclocked Laptop,6.3413,21307509.393,9999,9999,10,176.91
+1,free,USB Cooling Fan,0.5074,126.5812,2317,2317,5,0.51
+1,ads,USB Cooling Fan,0.4847,416.9004,2876,2876,5,0.13
+1,pc,USB Cooling Fan,0.4817,1402.9077,3545,3545,5,0.06
+2,free,USB Cooling Fan,6.3593,7125925.3487,9999,9999,10,37.69
+2,ads,USB Cooling Fan,6.3397,12844965.6953,9999,9999,10,50.76
+2,pc,USB Cooling Fan,6.3386,21436692.6686,9999,9999,10,94.72
+1,free,DIY Wi-Fi Antenna,0.5084,126.3652,1873,1873,5,1.28
+1,ads,DIY Wi-Fi Antenna,0.4848,416.6402,2358,2358,5,0.26
+1,pc,DIY Wi-Fi Antenna,0.4816,1402.6938,2934,2934,5,0.1
+2,free,DIY Wi-Fi Antenna,6.36,7125946.3818,9808,9808,10,1.02
+2,ads,DIY Wi-Fi Antenna,6.34,12838881.1239,9999,9999,10,18.19
+2,pc,DIY Wi-Fi Antenna,6.3372,22690372.5756,9999,9999,10,40.55
+1,free,Raspberry Pi Cluster,0.5102,125.1738,1446,1446,5,3.77
+1,ads,Raspberry Pi Cluster,0.4855,414.1232,1867,1867,5,0.7
+1,pc,Raspberry Pi Cluster,0.4818,1402.7339,2362,2362,5,0.22
+2,free,Raspberry Pi Cluster,6.362,7126924.6108,8857,8857,10,2.91
+2,ads,Raspberry Pi Cluster,6.3402,12844261.6198,9336,9336,10,0.51
+2,pc,Raspberry Pi Cluster,6.3374,22691589.7687,9774,9774,10,0.19
+1,free,Secondhand PC,0.514,121.7781,1010,1010,5,6.71
+1,ads,Secondhand PC,0.486,409.4702,1381,1381,5,1.24
+1,pc,Secondhand PC,0.4821,1400.9846,1804,1804,5,0.48
+2,free,Secondhand PC,6.3654,7129683.3277,7581,7581,10,5.57
+2,ads,Secondhand PC,6.3411,12841645.1826,8148,8148,10,1.0
+2,pc,Secondhand PC,6.3376,22704892.4313,8662,8662,10,0.38
+1,free,DIY Server Rack,0.5172,118.6501,640,640,5,9.52
+1,ads,DIY Server Rack,0.487,404.8269,975,975,5,1.82
+1,pc,DIY Server Rack,0.4825,1419.1099,1355,1355,5,0.72
+2,free,DIY Server Rack,6.3689,7126561.9648,6270,6270,10,8.22
+2,ads,DIY Server Rack,6.3416,12850334.7041,6848,6848,10,1.51
+2,pc,DIY Server Rack,6.338,22694799.6718,7418,7418,10,0.57
+1,free,Modified Network Switch,0.5201,114.4517,319,319,5,11.77
+1,ads,Modified Network Switch,0.4874,400.441,597,597,5,2.27
+1,pc,Modified Network Switch,0.483,1419.4747,938,938,5,0.97
+2,free,Modified Network Switch,6.3725,7118802.1532,5040,5040,10,10.78
+2,ads,Modified Network Switch,6.3425,12843115.961,5537,5537,10,1.94
+2,pc,Modified Network Switch,6.3383,22705260.9515,6054,6054,10,0.77
+1,free,Homemade Cooling,0.5211,112.7695,124,124,5,12.95
+1,ads,Homemade Cooling,0.4876,401.2847,295,295,5,2.51
+1,pc,Homemade Cooling,0.4831,1429.4787,569,569,5,1.09
+2,free,Homemade Cooling,6.3737,7118907.6673,4019,4019,10,11.96
+2,ads,Homemade Cooling,6.3428,12840907.9485,4430,4430,10,2.14
+2,pc,Homemade Cooling,6.3383,22715271.7577,4860,4860,10,0.87
+1,free,Garage Server Farm,0.5224,110.1735,38,38,5,14.44
+1,ads,Garage Server Farm,0.4878,400.0295,110,110,5,2.8
+1,pc,Garage Server Farm,0.4833,1436.9425,269,269,5,1.26
+2,free,Garage Server Farm,6.3748,7119942.9539,3157,3157,10,13.43
+2,ads,Garage Server Farm,6.3432,12842305.4531,3493,3493,10,2.39
+2,pc,Garage Server Farm,6.3386,22706256.9546,3845,3845,10,1.01
+1,free,Frankenstein Mainframe,0.5231,106.9257,10,10,5,16.48
+1,ads,Frankenstein Mainframe,0.488,398.6157,34,34,5,3.19
+1,pc,Frankenstein Mainframe,0.4835,1441.9495,101,101,5,1.5
+2,free,Frankenstein Mainframe,6.3764,7117400.4406,2468,2468,10,15.42
+2,ads,Frankenstein Mainframe,6.3432,12818241.78,2745,2745,10,2.71
+2,pc,Frankenstein Mainframe,6.3389,22676537.2734,3035,3035,10,1.22
+1,free,DDoS Extensions,0.509,149.3548,2107,2107,5,0.77
+1,ads,DDoS Extensions,0.485,491.4317,2629,2629,5,0.13
+1,pc,DDoS Extensions,0.4819,1529.1041,3210,3210,5,0.06
+2,free,DDoS Extensions,6.3612,7259700.4731,9999,9999,10,11.88
+2,ads,DDoS Extensions,6.34,12932737.2571,9999,9999,10,35.11
+2,pc,DDoS Extensions,6.3375,22689262.6267,9999,9999,10,52.88
+1,free,VPS Infrastructure,0.5187,114.1596,1687,1687,5,1.79
+1,ads,VPS Infrastructure,0.4867,398.7616,2167,2167,5,0.32
+1,pc,VPS Infrastructure,0.4828,1386.4005,2725,2725,5,0.13
+2,free,VPS Infrastructure,6.3698,7128399.6941,9499,9499,10,1.41
+2,ads,VPS Infrastructure,6.3417,12842969.3878,9945,9945,10,0.26
+2,pc,VPS Infrastructure,6.3382,22712227.9636,9999,9999,10,30.38
+1,free,Worm Propagation,0.5162,139.5891,1329,1329,5,5.56
+1,ads,Worm Propagation,0.4869,532.7302,1786,1786,5,1.01
+1,pc,Worm Propagation,0.4825,1901.7108,2290,2290,5,0.38
+2,free,Worm Propagation,6.3677,7275214.8058,8467,8467,10,4.5
+2,ads,Worm Propagation,6.3416,12935085.1839,8962,8962,10,0.83
+2,pc,Worm Propagation,6.3379,22708437.7773,9414,9414,10,0.29
+1,free,Host Optimization,0.5147,139.1228,1243,1243,5,5.79
+1,ads,Host Optimization,0.4862,467.7772,1642,1642,5,1.06
+1,pc,Host Optimization,0.4824,1502.1855,2079,2079,5,0.42
+2,free,Host Optimization,6.3664,7235072.9275,8214,8214,10,4.74
+2,ads,Host Optimization,6.3413,12919875.306,8732,8732,10,0.89
+2,pc,Host Optimization,6.3378,22695509.751,9199,9199,10,0.32
+1,free,Stealth Updates,0.5189,113.4141,1036,1036,5,6.48
+1,ads,Stealth Updates,0.4872,397.593,1424,1424,5,1.18
+1,pc,Stealth Updates,0.483,1403.5386,1866,1866,5,0.45
+2,free,Stealth Updates,6.3706,7129775.4143,7741,7741,10,5.33
+2,ads,Stealth Updates,6.3419,12846942.7052,8299,8299,10,1.0
+2,pc,Stealth Updates,6.3383,22700961.0084,8801,8801,10,0.35
+1,free,Wallet Extraction,0.5129,707.816,1541,1541,5,6.82
+1,ads,Wallet Extraction,0.486,2233.5379,1958,1958,5,1.24
+1,pc,Wallet Extraction,0.4822,7492.5055,2464,2464,5,0.48
+2,free,Wallet Extraction,6.3645,39195044.7968,9070,9070,10,5.68
+2,ads,Wallet Extraction,6.3409,68261104.3942,9510,9510,10,1.06
+2,pc,Wallet Extraction,6.3377,123328833.3554,9957,9957,10,0.38
