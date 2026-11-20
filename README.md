@@ -1,5 +1,17 @@
 # GHOSTNET — Incremental Hacker Clicker
 
+## v3.7 — Daily Operations (current development build)
+
+- [Play locally with index.html](index.html) or use the [versioned v3.7 snapshot](releases/ghostnet_v3_7_daily_operations.html). The repository is for source/version storage; **do not deploy GitHub Pages**.
+- **TARGETS → DAILY:** seven-step login reward cycle (3, 5, 8, 10, 15, 20, 30 PC), three daily quests, one advanced quest, and a rotating free daily offer.
+- Daily quest counters track upgrades, successful breaches, contract completions, simulated ad-button activations, and ZERO DAY resets. Tasks reset at **00:00 UTC**. Missing days does not erase the login reward cycle.
+- **◆ PC:** preview of the six agreed euro-priced products. **These are NOT real transactions**: checkout is intentionally disabled and no money, credits, cosmetic ownership, or ad-free privileges can be purchased yet.
+- The visible +PC debug-grant buttons were removed. Current ad boosts are **simulated activations, not advertisements**; the daily quest labels reflect that.
+- v3.7 uses a new save key, attempts migration from v3.4 and previous builds, and maintains portable JSON import/export.
+- Browser checks: 320px/360px/430px no horizontal overflow, daily login claims, ad quest progression, repeated-claim prevention after a restored save, and store previews. Longer-term pacing and clock manipulation resistance have not been validated.
+- **Security caveat:** locally stored daily claims and rewards can be modified by players. Before connecting payments or real ad networks, move purchased PC, ownership entitlements, and reward claim validation to a server.
+
+
 A fictional, offline-playable incremental game for mobile browsers. Hack simulated targets, grow a botnet, unlock upgrades, prestige with **ZERO DAY**, and ascend items to **Level 9,999**.
 
 ## Project repository — source and version archive
