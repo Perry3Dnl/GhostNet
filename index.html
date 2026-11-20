@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="theme-color" content="#050a07"><title>GHOSTNET v3.2 — Balance Lab</title>
+<style>
+:root{color-scheme:dark}*{box-sizing:border-box}body{margin:0;background:#030705;color:#d0e8d5;font:12px/1.43 ui-monospace,Menlo,Consolas,monospace}button{font:inherit;cursor:pointer;touch-action:manipulation;background:#17311f;color:#d1efd8;border:1px solid #3a6548;border-radius:5px;padding:7px;min-height:35px}button:disabled{opacity:.4;cursor:default}button:focus-visible{outline:2px solid #aaffca;outline-offset:2px}.game{position:relative;isolation:isolate;background:#050a07;width:100%;max-width:430px;min-height:100vh;margin:auto;border-inline:1px solid #294a35;overflow:hidden}.rain{position:absolute;inset:0;width:100%;height:100%;z-index:-1;pointer-events:none}.green{color:#8df5ab}.dim{color:#96ae9d}.gold{color:#f4c979}.purple{color:#ddbdff}.header,.footer{display:flex;align-items:center;justify-content:space-between;gap:5px;padding:8px 10px;background:#102017}.header{border-bottom:1px solid #294a35}.footer{border-top:1px solid #294a35;font-size:10px}.console{height:66px;padding:6px 10px;background:#030806ed;border-bottom:1px solid #294631;display:flex;flex-direction:column;justify-content:flex-end;gap:2px;color:#89cb99;overflow:hidden;font-size:10px}.console>div{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-height:12px}.alert{display:none;align-items:center;justify-content:space-between;gap:6px;padding:7px 10px;background:#282110;border-bottom:1px solid #8e723c}.wallet{text-align:center;padding:10px 8px 0}.money{font-size:clamp(24px,7.2vw,33px);font-weight:800;line-height:1.16;color:#b5ffcc;margin:3px 0;overflow-wrap:anywhere}.clickzone{height:168px;display:grid;grid-template-columns:57px minmax(0,1fr) 42px;align-items:center;gap:2px;padding:4px 11px}.rail{display:flex;flex-direction:column;gap:5px;padding-right:8px;z-index:2}.boost{width:43px;height:35px;min-height:0;position:relative;display:flex;align-items:center;justify-content:center;padding:3px;background:#132b1c;border-color:#3d704e;overflow:visible}.boost svg{width:20px;height:20px}.boost.on{background:#1d402a;border-color:#7bcc90}.bubble{position:absolute;bottom:3px;right:-7px;background:#bd7641;border:1px solid #dfa372;border-radius:20px;color:#fff5e7;padding:1px 4px;font-size:8px;font-weight:800;white-space:nowrap;pointer-events:none}.bubble.on{background:#2b774a;border-color:#71c98f;color:#eafff1}.server{width:min(100%,136px);aspect-ratio:1;min-height:0;margin:auto;border-radius:50%;border:3px solid #51a86c;background:radial-gradient(circle at 35% 24%,#367d4d,#193e29 55%,#081a0e);box-shadow:0 0 0 5px #142b1c,0 0 0 7px #39724b;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;color:#b7ffcc;font-weight:800;font-size:10px;user-select:none}.server:active{transform:scale(.96)}.server.hot{border-color:#f1d17a;box-shadow:0 0 0 5px #352d18,0 0 0 7px #b18c40;background:radial-gradient(circle at 35% 25%,#756b2c,#2a4a2d 60%,#0b1a0d)}.sideinfo{text-align:right;color:#a0b7a6;font-size:9px}.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px;padding:0 10px 7px}.stat{height:36px;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#10231a;border:1px solid #31573e;border-radius:5px;min-width:0}.stat strong{font-size:13px;line-height:1.1;overflow-wrap:anywhere;text-align:center}.stat small{font-size:8px;color:#95ae9d}.target{margin:0 10px 7px;padding:9px 10px;background:#0c2014eb;border:1px solid #345941;border-radius:6px}.between{display:flex;align-items:center;justify-content:space-between;gap:6px}.track{height:6px;background:#294631;border-radius:3px;overflow:hidden;margin:3px 0 7px}.fill{height:100%;background:#7def9f}.mission{border-top:1px solid #284a33;padding-top:6px;margin-top:6px;color:#adcdb5;font-size:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px;padding:6px 9px;border-block:1px solid #2b4934;background:#0b1a11}.tabs button{min-height:35px;padding:6px 2px;font-size:10px}.tabs .sel{background:#24543a;border-color:#7ce69f}.shop{padding:5px 10px;min-height:180px}.section{padding:9px 0 5px;color:#8af4aa;font-weight:700}.entry{padding:9px 0;border-bottom:1px solid #2b4633;display:flex;align-items:center;justify-content:space-between;gap:7px}.details{flex:1;min-width:0;overflow-wrap:anywhere}.name{font-weight:700;color:#e9f9ee}.desc,.next{font-size:10px;color:#a2bcaa;margin-top:3px}.current{font-size:10px;color:#87f5a7;margin-top:3px}.buy{min-height:39px;width:80px;flex-shrink:0;font-size:10px;padding:5px 3px;overflow-wrap:anywhere}.notice{background:#241a2d;border:1px solid #654b7b;color:#e1c6ed;border-radius:5px;padding:9px;margin:8px 0}.choices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin:8px 0}.choices button{min-height:65px;text-align:left;font-size:10px}.choices .sel{background:#244b34;border-color:#8aeea7}.op,.contract{padding:10px;margin:7px 0;background:#102319;border:1px solid #345c42;border-radius:6px}.op.done{border-color:#66936e;background:#132d1e}.contract{border-color:#6c613e;background:#211e12}.small{font-size:10px}.muted{opacity:.6}.bulk{display:flex;gap:4px;padding:7px 0}.bulk button{min-height:30px;flex:1;font-size:10px}.bulk .sel{background:#315739;border-color:#83e6a1}@media(max-width:350px){.clickzone{grid-template-columns:52px minmax(0,1fr) 35px;padding-inline:8px}.sideinfo{font-size:8px}.buy{width:73px}}@media(prefers-reduced-motion:reduce){.rain{display:none}}
+
+.perk-note{font-size:10px;color:#c7a6ec}.entry:has(button[data-ascend]){border-color:#9270b2;background:#1c1721;padding-inline:5px;border-radius:5px}.entry button[data-ascend]{background:#523260;border-color:#be91e0;color:#fae1ff}
+.ability-note{font-size:9px;color:#cfb0eb;margin-top:4px;line-height:1.35}.ability-card{padding:8px 9px;margin:5px 0;border-left:2px solid #866ca4;background:#16151e;font-size:10px}.ability-card .dim,.ability-card .gold{margin-top:3px}.ability-card .gold{color:#e7c17d}
+.intel-controls{display:flex;gap:5px;margin:8px 0 6px}.intel-controls button{flex:1;min-height:35px}.intel-controls button.sel{background:#28533b;border-color:#90efae}
+.intel-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;margin:8px 0}
+.intel-stat{padding:9px 8px;background:#10251a;border:1px solid #355c43;border-radius:6px;min-width:0}
+.intel-stat b{display:block;font-size:16px;color:#b8fcca;overflow-wrap:anywhere}.intel-stat small{font-size:9px;color:#a3bba8}
+.intel-badge{padding:8px 9px;background:#112018;border-left:2px solid #4d855d;margin:5px 0}.intel-badge.complete{border-color:#e3bd70;background:#252013}
+.intel-badge .track{height:4px;margin:5px 0}.intel-journal{font-size:10px;color:#aed2b4;padding:7px 0;border-bottom:1px solid #274130}
+
+/* v2.3: compact milestone meters and restrained feedback. No flashing. */
+.milestone-line{display:flex;align-items:center;justify-content:space-between;gap:6px;font-size:9px;color:#b6a1d4;margin-top:6px}
+.milestone-line span:last-child{color:#dabfef;white-space:nowrap}
+.milestone-track{height:3px;background:#343044;border-radius:3px;overflow:hidden;margin-top:3px}
+.milestone-fill{display:block;height:100%;background:#b993dd;transition:width .18s linear}
+.entry.maxed{border-left:2px solid #d4a4fa;padding-left:5px}
+.milestone-alert{position:sticky;top:0;z-index:30;margin:0 9px;display:none;padding:9px 10px;border-radius:0 0 7px 7px;background:#241b2f;border:1px solid #896a9f;border-top:0;box-shadow:0 5px 16px #0008;pointer-events:none}
+.milestone-alert.visible{display:block}
+.milestone-alert strong{display:block;color:#f1d4ff;font-size:11px}
+.milestone-alert small{display:block;font-size:9px;color:#bca9ce;margin-top:2px}
+@media(prefers-reduced-motion:reduce){.milestone-fill{transition:none}}
+.planner-grid{display:grid;grid-template-columns:1fr;gap:6px;margin:9px 0 14px}.planner-item{padding:7px 9px;border:1px solid #315541;border-radius:5px;background:#102419;font-size:10px}.planner-item .track{margin:5px 0}.planner-item strong{font-size:10px;overflow-wrap:anywhere}.planner-item .between{gap:4px}.planner-item .between>span{white-space:nowrap}@media(max-width:380px){.money{font-size:clamp(21px,6.5vw,29px)}.shop .entry{gap:5px}.shop .details .name{font-size:11px}.buy{width:74px}}
+@media(hover:none){.buy,.tabs button,.bulk button{min-height:42px}}
+</style></head><body><main id="game" class="game"><canvas class="rain" id="rain" aria-hidden="true"></canvas>
+<div class="header"><strong class="green" style="font-size:14px">◈ GHOSTNET <span class="dim" style="font-size:9px">v2.3</span></strong><button id="pcbtn" style="background:#30213c;border-color:#76568d;color:#e4c4ff;min-height:31px">◆ <span id="pc">0</span> PC</button></div>
+<div class="milestone-alert" id="milestone-alert" role="status" aria-live="polite"><strong id="milestone-title"></strong><small id="milestone-subtitle"></small></div><div class="console" id="console" aria-live="off"></div><div class="alert" id="alert"><div><strong class="gold" id="alerttitle"></strong><div class="dim small" id="alertdesc"></div></div><strong class="gold" id="alerttime"></strong><button id="claim" style="display:none;min-height:31px;background:#4c341c;border-color:#a27d44;color:#ffe4a7">CLAIM</button></div>
+<div class="wallet"><div class="dim" style="font-size:9px;letter-spacing:2px">STOLEN BITCOIN</div><div class="money" id="btc">₿ 0</div><div class="dim" id="bps">₿ 0/sec</div></div><div class="clickzone"><div class="rail" id="rail"></div><button class="server" id="tap" aria-label="Tap to hack"><svg width="59" height="59" viewBox="0 0 100 100" fill="none" stroke="#b5ffcd" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><rect x="18" y="16" width="64" height="23" rx="4"/><rect x="18" y="47" width="64" height="23" rx="4"/><circle cx="30" cy="28" r="2" fill="#b5ffcd"/><circle cx="30" cy="59" r="2" fill="#b5ffcd"/><path d="M44 28h24M44 59h24"/></svg><span id="taptext">TAP TO HACK</span></button><div class="sideinfo"><span class="green">AUTO</span><div>HACK</div><div id="time" style="margin-top:10px">8.00s</div><div>BREACH</div></div></div>
+<div class="stats"><div class="stat"><strong class="green" id="hosts">0</strong><small>HOSTS</small></div><div class="stat"><strong class="green" id="power">10</strong><small>H/s POWER</small></div><div class="stat"><strong class="purple" id="prestiges">0</strong><small>PRESTIGE</small></div></div>
+<div class="target"><div class="between"><strong class="green" id="target">SCANNING...</strong><strong class="gold" id="reward"></strong></div><div class="between dim" style="font-size:9px;margin-top:8px"><span>BREACH</span><span id="bp">0%</span></div><div class="track"><div class="fill" id="breach"></div></div><div class="between dim" style="font-size:9px"><span>DETECTION</span><span id="dp">0%</span></div><div class="track"><div class="fill" id="trace" style="background:#e8b762"></div></div><div class="between dim" style="font-size:9px"><span id="mode">DIRECTIVE: BALANCED</span><span id="tier">TIER 1/10</span></div><div class="mission" id="trait" style="color:#e9ce86">OPEN PORT · TAP BOOST</div><div class="mission" id="mission">◈ CLASSIFIED OPERATIONS</div><div class="mission" id="contract" style="margin-top:4px;padding-top:4px">◇ CONTRACT READY · OPEN TARGETS</div></div>
+<div class="tabs"><button class="sel" data-tab="shop">SHOP</button><button data-tab="targets">TARGETS</button><button data-tab="premium">◆ PC</button><button data-tab="prestige">ZERO DAY</button></div><div class="shop" id="shop"></div><input id="savefile" type="file" accept=".json,application/json" hidden><div class="footer"><span class="dim" id="status">ADAPTIVE DISPLAY</span><div style="display:flex;gap:4px"><button id="eco" style="min-height:31px;padding:5px">ECO OFF</button><button id="speed" style="min-height:31px;padding:5px">1×</button><button id="save" style="min-height:31px;padding:5px">SAVE</button></div></div></main>
+<script>
+(()=>{'use strict';
+const root=document.getElementById('game'),$=id=>document.getElementById(id),now=()=>Date.now();
+const T=[['PUBLIC',.0001,.35,.6,2,['LIBRARY','SCHOOL','HOTSPOT']],['SMALL BUSINESS',.0006,.3,1,12,['OFFICE','HOTEL','CAFE']],['INSTITUTIONS',.003,.24,1.3,120,['UNIVERSITY','LAB','HOSPITAL']],['CORPORATE',.015,.2,1.6,2000,['CLOUD','TELECOM','DATACENTER']],['FINANCE',.08,.16,1.9,50000,['BANK','VAULT','EXCHANGE']],['GOVERNMENT',.4,.13,2.2,1e6,['MINISTRY','GOV-NET','ARCHIVE']],['DEFENSE',2,.11,2.6,3e7,['RADAR','NAVAL','COMMAND']],['SPACE',10,.08,3,8e8,['MISSION','LAUNCH','TRACKING']],['ORBITAL',50,.06,3.5,3e10,['SATELLITE','ORBITAL','RELAY']],['BLACK PROJECTS',250,.04,4,1e12,['QUANTUM','OMEGA','DEEP-NET']]];
+const H=[['laptop','Overclocked Laptop',.0001,5,'Modified laptop increases processing power.'],['fan','USB Cooling Fan',.0005,15,'Keeps equipment cool.'],['antenna','DIY Wi-Fi Antenna',.0015,40,'Hand-built wireless equipment.'],['pi','Raspberry Pi Cluster',.005,120,'Tiny computers working together.'],['pc','Secondhand PC',.02,400,'Salvaged desktop hardware.'],['rack','DIY Server Rack',.075,1500,'Old servers in a homemade rack.'],['switch','Modified Network Switch',.3,5000,'Expands network capacity.'],['cool','Homemade Cooling',1.2,20000,'DIY liquid-cooling setup.'],['garage','Garage Server Farm',5,80000,'A garage filled with servers.'],['mainframe','Frankenstein Mainframe',20,350000,'A machine made from spare parts.']];
+const U=[['ddos','DDoS Extensions',.0003,1.6,'Multiplies attack power.'],['vps','VPS Infrastructure',.001,1.4,'Reduces detection growth.'],['worm','Worm Propagation',.002,1.75,'Improves host recruitment.'],['host','Host Optimization',.003,1.65,'Multiplies recruited host power.'],['stealth','Stealth Updates',.004,1.8,'Reduces detection growth.'],['wallet','Wallet Extraction',.005,1.8,'Multiplies BTC rewards.']];
+const RP=[['license','Data Recovery License',15,1.24,'Permanent BTC yield; diminishing returns'],['compression','Botnet Compression',18,1.26,'Permanent recruited-host power; diminishing returns'],['masking','Ghost Routing Nodes',12,1.25,'Permanently reduces detection; diminishing returns']];
+const P=[['cpu','Premium CPU',100,'Permanent ×2 hacking speed'],['magnet','Bitcoin Magnet',150,'Permanent ×2 BTC rewards'],['overdrive','Botnet Overdrive',200,'Permanent ×3 host power'],['vpn','Ghost VPN',125,'Permanent −50% detection'],['duplicate','Host Duplicator',300,'Two hosts per recruitment'],['quantum','Quantum Processor',500,'Permanent ×5 hacking speed']];
+const A=[['ram','Download More RAM',300,'×2 hacking speed'],['vpnad','Free VPN Pro',300,'−50% detection'],['crypto','Crypto Booster',300,'×2 BTC rewards'],['energy','Botnet Energy Drink',180,'×3 recruitment chance']];
+const R=[['primer','Ghost Primer',1,1.3,'First ZERO DAY reward: +30% BTC per level (up to 5 levels).'],['root','Root Access',10,1.3,'Permanent attack power multiplier.'],['income','Satoshi Exploit',10,1.25,'Permanent BTC payout multiplier.'],['ghost','Ghost Protocol',15,.9,'Permanent detection reduction.'],['genesis','Host Genesis',20,1.3,'Permanent host power multiplier.'],['automation','Autonomous Engine',100,2,'Permanent hacking speed multiplier.']];
+const M={balanced:['BALANCED','Standard BTC, hosts and detection.',1,0,1],profit:['PROFIT','×1.6 BTC, fewer hosts, +35% detection.',1.6,-.12,1.35],spread:['PROPAGATE','+16 pts recruitment, −25% BTC, +15% detection.',.75,.16,1.15],ghost:['GHOST','−65% detection, −20% BTC.',.8,0,.35]};
+const Ach=[['first','FIRST CONTACT',x=>x.hosts>=5,'Permanent +10% BTC'],['network','HOME NETWORK',x=>x.hosts>=25,'Permanent ×1.15 speed'],['swarm','BOTNET SWARM',x=>x.hosts>=100,'Permanent ×1.25 host power'],['legion','THE LEGION',x=>x.hosts>=1000,'Permanent ×2 BTC'],['orbit','ORBITAL ACCESS',x=>x.unlocked>=10,'Permanent ×2 speed']];
+const Ops=[['footprint','FIRST FOOTPRINT',1,12,'Establish a public-network foothold.','+3 recruitment percentage points'],['darkledger','DARK LEDGER',3,35,'Recover encrypted institutional ledgers.','Permanent ×1.3 BTC'],['silent','SILENT ENTRY',5,70,'Infiltrate financial systems undetected.','Permanent −25% detection'],['phantom','PHANTOM PROCESSOR',6,120,'Reassemble classified processor blueprints.','Permanent ×1.35 speed'],['skyfall','SKYFALL PROTOCOL',8,100,'Build a covert network across space facilities.','Permanent ×1.5 host power'],['eclipse','PROJECT ECLIPSE',10,250,'Decode the last black-project transmission.','Permanent ×2 BTC + ECLIPSE clearance']];
+const fresh=()=>({zeroSignal:0,zeroRunSeconds:0,zeroStageMilestones:0,backupVersion:33,intel:{taps:0,totalBreaches:0,totalDetections:0,levelsPurchased:0,contracts:0,creditsFound:0,raresClaimed:0,offlineBTC:0,startedAt:now(),activeSeconds:0,unlockedAwards:{}},journal:[],ascensions:{},perkPoints:0,perkSpent:0,perks:{},btc:0,earned:0,lifetime:0,awarded:0,zdt:0,prestiges:0,hosts:0,hpower:0,tier:1,unlocked:1,up:{},research:{},premium:{},pc:0,ads:{},ach:{},ops:{},opsDone:{},tierBreaches:Array(10).fill(0),target:null,progress:0,trace:0,seq:0,breaches:0,failures:0,tab:'shop',speed:1,eco:false,directive:'balanced',bulk:1,pcLevels:{},pcBoosts:{},balanceVersion:16,logs:[],contract:null,contractCycle:0,rare:null,rareLast:0,signalBoost:0,events:[],nextEvent:now()+20000+Math.random()*25000,liveEvent:null,lastSeen:now(),targetFinds:{},targetBounties:0});
+let s=fresh();let migrated=false;
+try{
+ const next=localStorage.getItem('ghostnet-flow-v33')||localStorage.getItem('ghostnet-pacing-v32')||localStorage.getItem('ghostnet-release-v30')||localStorage.getItem('ghostnet-milestones-v23')||localStorage.getItem('ghostnet-intelligence-v22')||localStorage.getItem('ghostnet-ascension-v21')||localStorage.getItem('ghostnet-targets-v20')||localStorage.getItem('ghostnet-reliable-v19')||localStorage.getItem('ghostnet-ascension-v18')||localStorage.getItem('ghostnet-standalone-v16');
+ if(next){const j=JSON.parse(next);if((j.version===33||j.version===32||j.version===30||j.version===23||j.version===22||j.version===21||j.version===20||j.version===19||j.version===18||j.version===16)&&j.data)s={...fresh(),...j.data,logs:[],target:null,progress:0,trace:0,tab:'shop'};}
+ else{
+  const legacy=localStorage.getItem('ghostnet-standalone-v15')||localStorage.getItem('ghostnet-deep-v15');
+  if(legacy){const j=JSON.parse(legacy);if(j.version===15&&j.data){s={...fresh(),...j.data,logs:[],target:null,progress:0,trace:0,tab:'shop'};migrated=true;}}
+ }
+}catch(e){}
+s.intel??={};s.intel={...fresh().intel,...s.intel};s.journal=Array.isArray(s.journal)?s.journal.slice(-32):[];s.pcLevels??={};s.pcBoosts??={};s.ascensions??={};s.perks??={};s.perkPoints??=0;s.perkSpent??=0;s.zeroSignal=Math.max(0,Number(s.zeroSignal)||0);s.zeroRunSeconds=Math.max(0,Number(s.zeroRunSeconds)||0);s.zeroStageMilestones=Math.max(0,Math.min(4,Math.floor(Number(s.zeroStageMilestones)||0)));for(const x of [...H,...U])s.up[x[0]]=Math.max(0,Math.min(9999,Math.floor(Number(s.up[x[0]])||0)));
+// Previous payouts reached billions within minutes. Preserve levels and unlocks,
+// but compress inflated BTC values on first v1.6 migration. The v1.5 save remains untouched.
+if(migrated){
+ const rebalance=n=>n<=100?Math.max(0,n):100*Math.pow(n/100,.35);
+ s.btc=rebalance(s.btc);s.earned=rebalance(s.earned);s.lifetime=Math.max(s.earned,rebalance(s.lifetime));
+ s.balanceVersion=16;s.offlineNotice='Economy rebalanced; original v1.5 save retained';
+}
+
+if(!Array.isArray(s.events))s.events=[];if(!Array.isArray(s.tierBreaches))s.tierBreaches=Array(10).fill(0);s.ops??={};s.opsDone??={};s.ach??={};s.targetFinds??={};s.targetBounties??=0;
+const lv=id=>s.up[id]||0,pl=id=>s.pcLevels[id]||0,rl=id=>s.research[id]||0,has=id=>!!s.premium[id],on=id=>(s.ads[id]||0)>now(),done=id=>!!s.opsDone[id];
+function fmt(n){if(!Number.isFinite(n))return '∞';if(!n)return '0';let a=Math.abs(n);if(a<1e-6)return n.toExponential(2);if(a<1)return n.toFixed(6).replace(/0+$/,'').replace(/\.$/,'');if(a<1e3)return n.toLocaleString('en-US',{maximumFractionDigits:2});let i=Math.floor(Math.log10(a)/3),u=['','K','M','B','T','Qa','Qi','Sx','Sp','Oc','No'];return i<u.length?(n/1000**i).toFixed(2)+u[i]:n.toExponential(2)}
+const starsNeeded=[10,50,200],stars=t=>starsNeeded.filter(x=>(s.tierBreaches[t-1]||0)>=x).length,totalStars=()=>T.reduce((n,_,i)=>n+stars(i+1),0),mode=()=>M[s.directive]||M.balanced;
+const tierTraits=[
+ ['OPEN PORT','Manual taps give +25% breach progress.'],
+ ['NEIGHBOR NODES','Host recruitment chance +5 percentage points.'],
+ ['RESEARCH CACHE','8% chance to double a successful BTC payout.'],
+ ['CORPORATE FIREWALL','Detection +25%; every success earns +20% BTC.'],
+ ['VAULT JACKPOT','6% chance of a ×4 BTC breach payout.'],
+ ['PATROL CYCLE','Two of every three targets have −40% detection; the third has +60%.'],
+ ['HARDENED NETWORK','Breach time +20%, recruited hosts have +35% power.'],
+ ['EXPERIMENTAL TECH','8% chance per success of a 15-second ×2 speed boost.'],
+ ['RELAY CLUSTER','15% chance of one bonus host on successful recruitment.'],
+ ['CLASSIFIED KEYS','2% chance per successful breach to find +1 Premium Credit.']
+];
+const traitFor=t=>tierTraits[Math.max(0,Math.min(9,t-1))];
+const traitLine=t=>traitFor(t)[0]+': '+traitFor(t)[1];
+const randHits=(n,p)=>{if(n<=0||p<=0)return 0;if(p>=1)return n;if(n<80){let k=0;for(let i=0;i<n;i++)if(Math.random()<p)k++;return k}let u=Math.max(1e-12,Math.random()),v=Math.random(),z=Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v);return Math.max(0,Math.min(n,Math.round(n*p+z*Math.sqrt(n*p*(1-p)))))};
+// Older saves tracked breaches and detections per run. Preserve their last known
+// run totals as the starting point for career statistics, without inventing past runs.
+s.intel=s.intel||fresh().intel;
+if(!Number.isFinite(s.intel.totalBreaches))s.intel.totalBreaches=Math.max(0,s.breaches||0);
+if(!Number.isFinite(s.intel.totalDetections))s.intel.totalDetections=Math.max(0,s.failures||0);
+const MAX_LEVEL=9999;
+const perkDefs=[
+ ['engineer','HARDWARE ENGINEER','Every level adds +3% hardware hacking power.',30],
+ ['architect','BOTNET ARCHITECT','Every level adds +4% recruited host power.',30],
+ ['specialist','CRYPTO SPECIALIST','Every level adds +3% BTC payout.',30],
+ ['shadow','SHADOW ROUTING','Every level reduces detection by 2%.',30],
+ ['legacy','HOST LEGACY','Keep 1% of botnet hosts and host power per level after ZERO DAY (max 10%).',10]
+];
+/* A distinct permanent power for every item. Ability strength grows at ascension ranks 1, 3 and 5. */
+const abilityDefs={
+ laptop:['KEYBOARD OVERRIDE','Manual taps gain +12% progress per ability rank.'],
+ fan:['THERMAL CAMOUFLAGE','Detection growth decreases by 4% per ability rank.'],
+ antenna:['SIGNAL LEECH','Recruitment chance gains +1 percentage point per ability rank.'],
+ pi:['PARALLEL PROCESSING','Automatic breach speed increases 4% per ability rank.'],
+ pc:['CONTRACT EXPERT','BTC contract rewards increase 10% per ability rank.'],
+ rack:['RACK SYNCHRONIZATION','All hardware power increases 6% per ability rank.'],
+ switch:['DISTRIBUTED ROUTING','Botnet host power increases 5% per ability rank.'],
+ cool:['CRYO ENGINE','Breach speed increases 5% per ability rank.'],
+ garage:['IDLE MINING','Offline BTC recovery increases 5 percentage points per rank.'],
+ mainframe:['DEEP EXTRACTION','Every successful breach pays 6% more BTC per rank.'],
+ ddos:['MANUAL OVERDRIVE','Manual taps gain +8% progress per ability rank.'],
+ vps:['GHOST INFRASTRUCTURE','Detection growth decreases by 6% per ability rank.'],
+ worm:['SELF-REPLICATION','Each recruitment has +5% chance per rank to grant an extra host.'],
+ host:['HIVE INTELLIGENCE','Recruited host power increases 7% per ability rank.'],
+ stealth:['TRACE SCRAMBLER','Detection growth decreases 5% per ability rank.'],
+ wallet:['LUCKY EXTRACTION','Each successful breach has +2% chance per rank to pay twice.']
+};
+const abilityRank=id=>{let n=s.ascensions[id]||0;return n>=5?3:n>=3?2:n>=1?1:0};
+const abilityDescription=id=>{let a=abilityDefs[id];if(!a)return '';let r=abilityRank(id);return a[0]+' · '+(r?'RANK '+r+'/3 ACTIVE':'UNLOCK AT FIRST ASCENSION')+' · '+a[1]};
+const abilityNext=id=>{let n=s.ascensions[id]||0;return n<1?'First ascension unlocks unique ability':n<3?'Third ascension improves ability to Rank 2':n<5?'Fifth ascension improves ability to Rank 3':'Ability fully mastered (Rank 3)'};
+const perkLvl=id=>s.perks[id]||0,asc=id=>s.ascensions[id]||0;
+const perkCost=id=>1+Math.floor(perkLvl(id)/5);
+const itemMastery=id=>1+.2*asc(id);
+function ascAward(id){return 10+Math.min(20,2*asc(id))}
+function ascend(id){
+ const x=H.find(x=>x[0]===id)||U.find(x=>x[0]===id);
+ if(!x||lv(id)<MAX_LEVEL)return;
+ let reward=ascAward(id);
+ let nextRank=(asc(id)+1>=5?3:asc(id)+1>=3?2:1);
+ if(!confirm('ASCEND '+x[1]+'?\n\nReset ONLY this item from Level 9,999 to Level 0.\nGain +'+reward+' Perk Points and +20% effectiveness.\nUnique ability: '+abilityDefs[id][0]+' (Rank '+nextRank+'/3).\nOther items and BTC stay unchanged.'))return;
+ s.up[id]=0;s.ascensions[id]=asc(id)+1;s.perkPoints+=reward;
+ log('[ASCENSION] '+x[1]+' +'+reward+' PP');if([1,3,5].includes(asc(id)))log('[ABILITY] '+abilityDefs[id][0]+' RANK '+abilityRank(id));save();draw(true);
+}
+function buyPerk(id){
+ const p=perkDefs.find(x=>x[0]===id);if(!p)return;
+ const n=perkLvl(id),c=perkCost(id);if(n>=p[3]||s.perkPoints<c)return;
+ s.perkPoints-=c;s.perkSpent+=c;s.perks[id]=n+1;
+ log('[PERK] '+p[1]+' LV'+(n+1));save();draw(true);
+}
+/* Shared finite progressive cost curve: fast early levels, steady middle, steep endgame.
+ * The prefix table lets BUY MAX use binary search without per-level loops. */
+const priceCurve=new Float64Array(MAX_LEVEL+1);
+for(let i=0;i<MAX_LEVEL;i++){
+ let v=.5*Math.pow(1+i/75,.65)*(1+Math.pow(i/3000,1.2))*(1+2*Math.pow(i/9000,10))*Math.pow(1+Math.pow(i/850,2),2);
+ priceCurve[i+1]=priceCurve[i]+v;
+}
+const itemScale=(g)=>g===1.15?1:1+Math.max(0,g-1.15)*5;
+const cost=(b,g,n)=>n>=MAX_LEVEL?Infinity:b*itemScale(g)*(priceCurve[n+1]-priceCurve[n]);
+function sumCost(base,g,n,q){if(q<=0)return 0;return base*itemScale(g)*(priceCurve[Math.min(MAX_LEVEL,n+q)]-priceCurve[n])}
+function quantity(base,g,n){
+ const room=MAX_LEVEL-n;if(room<=0)return 0;
+ if(s.bulk===1)return 1;if(s.bulk===10)return Math.min(10,room);
+ let lo=0,hi=room;
+ while(lo<hi){let mid=Math.ceil((lo+hi)/2);if(sumCost(base,g,n,mid)<=s.btc+1e-12)lo=mid;else hi=mid-1}
+ return lo;
+}
+function power(over){let n=id=>over&&over.id===id?over.level:lv(id);let eq=(10+H.reduce((a,x)=>a+x[3]*n(x[0])*itemMastery(x[0]),0))*(1+.06*abilityRank('rack'))*(1+.08*s.zeroStageMilestones);let hosts=s.hpower*(1+.05*abilityRank('switch'))*(1+.07*abilityRank('host'))*(1+.04*perkLvl('architect'))*(1+Math.min(6,Math.log1p(n('host')*itemMastery('host')))) *1.18**Math.min(16,rl('genesis'))*(has('overdrive')?3:1)*(s.ach.swarm?1.25:1)*(done('skyfall')?1.5:1)*(1+.12*Math.log1p(pl('compression')));return Math.max(10,(eq*(1+.03*perkLvl('engineer'))+hosts)*(1+Math.min(10,1.2*Math.log1p(n('ddos')*itemMastery('ddos'))))*1.2**Math.min(16,rl('root')))}
+function duration(over){let m=(1+Math.log10(1+power(over)/100))*(has('cpu')?2:1)*(has('quantum')?5:1)*(on('ram')?2:1)*(now()<s.signalBoost?2:1)*(s.ach.network?1.15:1)*(s.ach.orbit?2:1)*(done('phantom')?1.35:1)*1.3**Math.min(12,rl('automation'))*(now()<(s.pcBoosts.speed||0)?1.5:1)*(1+.04*abilityRank('pi'))*(1+.05*abilityRank('cool'));return Math.max(.45,(s.tier===7?9.6:8)/Math.max(1,m))}
+function reward(t){if(!t)return 0;let wallet=1+Math.min(7,1.3*Math.log1p(lv('wallet')*itemMastery('wallet')));return t.b*(1+.12*s.zeroStageMilestones)*(1+.06*abilityRank('mainframe'))*(s.tier===4?1.2:1)*(1+.03*perkLvl('specialist'))*wallet*1.3**Math.min(5,rl('primer'))*1.18**Math.min(16,rl('income'))*(has('magnet')?2:1)*(on('crypto')?2:1)*(s.ach.first?1.1:1)*(s.ach.legion?1.4:1)*(done('darkledger')?1.2:1)*(done('eclipse')?1.5:1)*(1+.015*totalStars())*mode()[2]*(1+.08*Math.log1p(pl('license')))*(now()<(s.pcBoosts.btc||0)?1.5:1)}
+function detect(t){return t?2.2*t.d*(s.tier===4?1.25:1)*(s.tier===6?(t.patrol||1):1)*(1-.04*abilityRank('fan'))*(1-.06*abilityRank('vps'))*(1-.05*abilityRank('stealth'))*(.8**(lv('stealth')*itemMastery('stealth')))*(1-.02*perkLvl('shadow'))*.9**rl('ghost')/(1+.2*lv('vps')*itemMastery('vps'))*(has('vpn')?.5:1)*(on('vpnad')?.5:1)*(done('silent')?.75:1)*mode()[4]/(1+.1*Math.log1p(pl('masking'))):0}
+function recruit(t){return t?Math.min(.95,Math.max(0,t.c*(on('energy')?3:1)+.04*lv('worm')*itemMastery('worm')+(s.tier===2?.05:0)+.01*abilityRank('antenna')+(done('footprint')?.03:0)+mode()[3])):0}
+const ZERO_FIRST=1700,ZERO_SECOND=24300;
+const zeroThreshold=pre=>pre===0?ZERO_FIRST:pre===1?ZERO_SECOND:ZERO_SECOND*Math.pow(1.25,Math.min(12,pre-1));
+const zeroTarget=()=>zeroThreshold(s.prestiges);
+// Prestige readiness is based on a bounded research signal, rather than runaway BTC totals.
+// Only real gameplay seconds accrue full signal. Speed modes accelerate hacking but not this meter.
+function signalRate(tier,pow){return Math.min(1.15,.70+.30*Math.max(1,Math.min(10,tier))/10+.045*Math.min(3,Math.log10(1+Math.max(0,pow))/2));}
+function zeroEligible(){return s.zeroSignal>=zeroTarget()&&s.unlocked>=(s.prestiges?8:5)&&s.earned>=(s.prestiges?10000:100)}
+function addZeroSignal(seconds,offline=false){
+ if(!(seconds>0))return;
+ const gain=seconds*signalRate(s.tier,power())*(offline?.25:1);
+ const before=s.zeroSignal;
+ s.zeroSignal+=gain;
+ const checkpoints=[.10,.25,.50,.75];
+ while(s.zeroStageMilestones<checkpoints.length&&s.zeroSignal>=zeroTarget()*checkpoints[s.zeroStageMilestones]){
+  let index=s.zeroStageMilestones++;let bonus=s.prestiges?index+1:1;
+  s.pc+=bonus;
+  log('[PROTOCOL] '+Math.round(checkpoints[index]*100)+'% · +◆'+bonus+' PC · stronger network');unlock();
+ }
+ unlock();if(before<zeroTarget()&&s.zeroSignal>=zeroTarget())log('[ZERO DAY] Research complete · check eligibility');
+}
+const production=()=>reward(s.target)/duration(),perf=()=>s.eco?3:production()<.01?0:production()<1e3?1:production()<1e9?2:3,timing=[.25,.5,1,2],tokens=()=>zeroEligible()?(s.prestiges===0?1:s.prestiges===1?4:Math.min(100,4+2*(s.prestiges-1))):0;
+
+const itemMilestones=[10,25,50,99,250,500,999,2500,5000,7500,9000,9999];
+function nextMilestone(n){return itemMilestones.find(v=>v>n)||9999}
+function previousMilestone(n){let previous=0;for(const v of itemMilestones){if(v>=n)break;previous=v}return previous}
+let notificationQueue=[],notificationEnds=0,notificationsReady=false;
+function notify(title,detail){if(!notificationsReady)return;
+ // Limit queued feedback during rapid automated progression.
+ if(notificationQueue.length>=5)notificationQueue.shift();
+ notificationQueue.push([title,detail||'']);renderNotice();
+}
+function renderNotice(){const el=$('milestone-alert'),t=now();if(!el)return;
+ if(t<notificationEnds)return;
+ if(!notificationQueue.length){el.classList.remove('visible');return}
+ const [title,detail]=notificationQueue.shift();$('milestone-title').textContent=title;$('milestone-subtitle').textContent=detail;
+ el.classList.add('visible');notificationEnds=t+3100;
+}
+function milestoneReached(id,before,after){
+ let hit=itemMilestones.filter(v=>v>before&&v<=after);
+ if(!hit.length)return;
+ const x=H.find(x=>x[0]===id)||U.find(x=>x[0]===id),last=hit[hit.length-1];
+ let msg='[ITEM MILESTONE] '+x[1]+' LV '+last+(hit.length>1?' (+'+hit.length+' milestones)':'');
+ log(msg);notify('✦ '+x[1]+' · Level '+last,last===9999?'MAX LEVEL — ASCENSION UNLOCKED':'Milestone reached · '+(9999-last)+' levels to ascension');
+}
+let pending={n:0,btc:0,hosts:0,fail:0},lastSummary=0;function log(v){s.logs.push(v);if(s.logs.length>4)s.logs.shift();if(/\[(?:MILESTONE|CLASSIFIED|ASCENSION|ABILITY|ZERO DAY|CONTRACT|CREDIT DROP|CACHE|MASTERY|UNLOCK|BLACK KEY|SAVE VAULT|ITEM MILESTONE|INTEL AWARD)\]/.test(v)){s.journal??=[];s.journal.push({at:now(),text:v});if(s.journal.length>32)s.journal.shift()}
+ if(/^\[(UNLOCK|ASCENSION|ABILITY|CLASSIFIED|MASTERY|INTEL AWARD)\]/.test(v))notify('✦ '+v.replace(/^\[[^\]]+\]\s*/,''),'Network milestone · recorded in INTEL');}
+function spawn(){let t=T[s.tier-1],v=.85+Math.random()*.3;s.target={name:t[5][Math.floor(Math.random()*t[5].length)]+'-'+String(++s.seq).padStart(3,'0'),b:t[1]*v,c:t[2],d:t[3],host:t[4],patrol:s.tier===6?(s.seq%3===0?1.6:.6):1};s.progress=0;s.trace=0}
+function checkAch(){for(const [id,name,test] of Ach)if(!s.ach[id]&&test(s)){s.ach[id]=true;log('[MILESTONE] '+name)}}
+// Second-run target chapters: the economy and research both matter.
+// Old saves retain their already-unlocked targets; nothing is taken away.
+const chapterGates=[0,0,0,0,0,.10,.25,.40,.65,.85];
+function chapterTierReady(tier,signal,stage){return stage===0||signal>=zeroThreshold(stage)*chapterGates[tier-1]}
+function unlock(){let limits=[0,.004,.025,.15,1,6,40,250,1600,10000];while(s.unlocked<10&&s.earned>=limits[s.unlocked]&&chapterTierReady(s.unlocked+1,s.zeroSignal,s.prestiges)){s.unlocked++;s.tier=s.unlocked;log('[UNLOCK] TIER '+s.tier)}}
+function trackOp(tier){for(const o of Ops){if(o[2]!==tier||done(o[0]))continue;s.ops[o[0]]=Math.min(o[3],(s.ops[o[0]]||0)+1);if(s.ops[o[0]]>=o[3]){s.opsDone[o[0]]=true;log('[CLASSIFIED] '+o[1]+' COMPLETE')}}}
+function contractOffers(){let tier=s.tier,c=s.contractCycle;return[{id:'sweep',name:'SYSTEMATIC SWEEP',desc:'Complete '+(12+c%4*4)+' breaches in Tier '+tier,need:12+c%4*4,tier,kind:'breach',pay:'btc'},{id:'recruit',name:'BOTNET RECRUITMENT',desc:'Recruit '+(6+c%3*2)+' permanent hosts',need:6+c%3*2,tier,kind:'recruit',pay:'pc'},{id:'tap',name:'HANDS-ON OVERRIDE',desc:'Tap the server '+(20+c%3*5)+' times',need:20+c%3*5,tier,kind:'tap',pay:'boost'}]}
+function contractProgress(kind,value,tier){let c=s.contract;if(!c||c.kind!==kind||(kind==='breach'&&tier!==c.tier))return;c.progress=Math.min(c.need,c.progress+value);if(c.progress<c.need)return;if(c.pay==='btc'){let b=c.bounty*(1+.1*abilityRank('pc'));s.btc+=b;s.earned+=b;s.lifetime+=b;unlock();log('[CONTRACT] +₿'+fmt(b))}else if(c.pay==='pc'){s.pc+=2;log('[CONTRACT] +◆2 PC')}else{s.signalBoost=Math.max(now(),s.signalBoost)+90000;log('[CONTRACT] ×2 SPEED / 90s')}s.contract=null;s.contractCycle++;s.intel.contracts++}
+function rareMaybe(){if(s.rare||s.breaches<15||now()-s.rareLast<60000||Math.random()>.02)return;s.rare={type:Math.random()<.7?'wallet':'hosts',until:now()+30000};s.rareLast=now();log('[RARE] Unusual cache detected')}
+function claimRare(){if(!s.rare)return;let r=s.rare;s.rare=null;s.intel.raresClaimed++;if(r.type==='wallet'){let b=reward(s.target)*40;s.btc+=b;s.earned+=b;s.lifetime+=b;unlock();log('[CACHE] +₿'+fmt(b))}else{let n=5+Math.ceil(Math.sqrt(s.hosts));s.hosts+=n;s.hpower+=n*T[s.tier-1][4];contractProgress('recruit',n,s.tier);log('[CACHE] +'+fmt(n)+' hosts')}checkAch();draw(true)}
+function applyTierSuccess(t,tier,n=1,baseReward=0){
+ let bonus=0;
+ if(tier===3)bonus=randHits(n,.08)*baseReward;
+ if(abilityRank('wallet'))bonus+=randHits(n,.02*abilityRank('wallet'))*baseReward;
+ if(tier===5)bonus+=randHits(n,.06)*baseReward*3;
+ if(bonus){s.btc+=bonus;s.earned+=bonus;s.lifetime+=bonus;pending.btc+=bonus;s.targetBounties+=bonus;log('[T'+tier+' BONUS] +₿'+fmt(bonus))}
+ if(tier===8&&randHits(n,.08)>0){s.signalBoost=Math.max(now(),s.signalBoost)+15000;log('[SPACE] Experimental overclock +15s')}
+ if(tier===10){let credits=randHits(n,.02);if(credits){s.pc+=credits;log('[BLACK KEY] +◆'+fmt(credits)+' PC')}}
+ s.targetFinds[tier]=(s.targetFinds[tier]||0)+n;
+}
+function finish(ok){let t=s.target,tier=s.tier;if(!t)return;if(ok){let b=reward(t);s.btc+=b;s.earned+=b;s.lifetime+=b;s.breaches++;s.intel.totalBreaches++;pending.n++;pending.btc+=b;applyTierSuccess(t,tier,1,b);let before=stars(tier);s.tierBreaches[tier-1]=(s.tierBreaches[tier-1]||0)+1;if(stars(tier)>before)log('[MASTERY] T'+tier+' ★'+stars(tier));trackOp(tier);let added=0;if(Math.random()<recruit(t)){added=has('duplicate')?2:1;s.hosts+=added;s.hpower+=added*t.host*(tier===7?1.35:1);if(abilityRank('worm')&&Math.random()<.05*abilityRank('worm')){s.hosts++;s.hpower+=t.host;added++;}pending.hosts+=added;if(tier===9&&Math.random()<.15){s.hosts+=1;s.hpower+=t.host;added+=1;pending.hosts+=1;log('[RELAY] Bonus host recruited')}}contractProgress('breach',1,tier);if(added)contractProgress('recruit',added,tier);unlock();checkAch();rareMaybe()}else{s.failures++;s.intel.totalDetections++;pending.fail++}spawn()}
+/* Fixed-duration simulation keeps simulation time independent of display refresh.
+   Bound catch-up work and carry any remaining simulated seconds forward. */
+let simDebt=0;
+/* At capped Tier 10 speed, resolve uniform guaranteed-success breaches as
+   one batch. Recruitment remains sampled; detection and mission thresholds
+   are checked before entering the fast path. */
+function fastBatch(n,d){
+ if(n<=0)return;
+ let t=s.target,tier=s.tier;
+ let unit=reward(t);
+ let total=unit*n;
+ s.btc+=total;s.earned+=total;s.lifetime+=total;
+ s.breaches+=n;s.intel.totalBreaches+=n;pending.n+=n;pending.btc+=total;applyTierSuccess(t,tier,n,unit);
+ let count=s.tierBreaches[tier-1]||0;
+ s.tierBreaches[tier-1]=count+n;
+ if(stars(tier)>starsNeeded.filter(x=>count>=x).length)log('[MASTERY] T'+tier+' ★'+stars(tier));
+ for(const o of Ops){
+  if(o[2]!==tier||done(o[0]))continue;
+  s.ops[o[0]]=Math.min(o[3],(s.ops[o[0]]||0)+n);
+  if(s.ops[o[0]]>=o[3]){s.opsDone[o[0]]=true;log('[CLASSIFIED] '+o[1]+' COMPLETE')}
+ }
+ let chance=recruit(t),hits=0;
+ if(n<300){for(let i=0;i<n;i++)if(Math.random()<chance)hits++}
+ else{
+  let u1=Math.max(1e-12,Math.random()),u2=Math.random(),z=Math.sqrt(-2*Math.log(u1))*Math.cos(2*Math.PI*u2);
+  hits=Math.max(0,Math.min(n,Math.round(n*chance+z*Math.sqrt(n*chance*(1-chance)))));
+ }
+ let joined=hits*(has('duplicate')?2:1)+randHits(hits,.05*abilityRank('worm'));
+ s.hosts+=joined;s.hpower+=joined*t.host;pending.hosts+=joined;
+ contractProgress('breach',n,tier);
+ if(joined)contractProgress('recruit',joined,tier);
+ unlock();checkAch();
+ if(!s.rare&&s.breaches>=15&&now()-s.rareLast>=60000&&Math.random()<1-Math.pow(.98,n)){
+  s.rare={type:Math.random()<.7?'wallet':'hosts',until:now()+30000};s.rareLast=now();log('[RARE] Unusual cache detected');
+ }
+ s.seq+=Math.max(0,n-1);spawn();
+}
+function tick(dt){
+ simDebt=Math.min(simDebt+dt,600);
+ let iterations=0;
+ while(simDebt>1e-9&&iterations++<240){
+  if(!s.target)spawn();
+  let d=duration(),r=Math.max(1e-12,detect(s.target));
+  if(s.tier===10&&s.unlocked===10&&d<=.45000001&&s.progress===0&&s.trace===0&&r*d<100&&simDebt>24*d){
+   let n=Math.min(100000,Math.floor(simDebt/d));fastBatch(n,d);simDebt-=n*d;continue;
+  }
+  let tb=Math.max(0,(1-s.progress)*d),td=Math.max(0,(100-s.trace)/r),step=Math.min(simDebt,tb,td);
+  if(step<1e-10){finish(tb<=td);continue}
+  s.progress+=step/d;s.trace+=step*r;simDebt-=step;
+  if(step>=Math.min(tb,td)-1e-9)finish(tb<=td);
+ }
+}
+
+function tap(){s.intel.taps++;let mul=s.liveEvent?.type==='breakthrough'&&now()<s.liveEvent.until?5:1;let p=Math.max(.025,.15/duration())*mul*(s.tier===1?1.25:1)*(1+.12*abilityRank('laptop'))*(1+.08*abilityRank('ddos')),n=0;while(p>0&&n++<100){let remaining=Math.max(0,1-s.progress);if(p<remaining){s.progress+=p;break}p-=remaining;finish(true)}contractProgress('tap',1,s.tier);draw(false)}
+function summary(t){if(pending.n+pending.fail<[1,5,25,100][perf()]&&t-lastSummary<5000)return;if(pending.n)log('[+] '+fmt(pending.n)+' breaches · ₿'+fmt(pending.btc));if(pending.hosts)log('[+] '+fmt(pending.hosts)+' hosts recruited');if(pending.fail)log('[!] '+fmt(pending.fail)+' detections');pending={n:0,btc:0,hosts:0,fail:0};lastSummary=t}
+function buy(id){let e=H.find(x=>x[0]===id),u=U.find(x=>x[0]===id);if(!e&&!u)return;let base=e?e[2]:u[2],g=e?1.15:u[3],q=quantity(base,g,lv(id)),total=sumCost(base,g,lv(id),q);if(!q||!Number.isFinite(total)||total>s.btc+1e-12)return;s.btc=Math.max(0,s.btc-total);let was=lv(id);s.up[id]=was+q;s.intel.levelsPurchased+=q;log('[UPGRADE] '+(e?e[1]:u[1])+' +'+q+' LV');milestoneReached(id,was,s.up[id]);draw(true)}
+function repeatPrice(x){return Math.ceil(x[2]*Math.pow(x[3],pl(x[0])))}
+function buyRepeat(id){let x=RP.find(x=>x[0]===id);if(!x)return;let price=repeatPrice(x);if(!Number.isFinite(price)||s.pc<price)return;s.pc-=price;s.pcLevels[id]=pl(id)+1;log('[PC UPGRADE] '+x[1]+' LV'+pl(id));draw(true);save()}
+function buyConsumable(id){let options={btc:{name:'BTC Surge / 10 min',price:12,duration:600000},speed:{name:'Turbo Scan / 5 min',price:10,duration:300000}};let x=options[id];if(!x||s.pc<x.price)return;s.pc-=x.price;s.pcBoosts[id]=Math.max(now(),s.pcBoosts[id]||0)+x.duration;log('[PC BOOST] '+x.name+' activated');draw(true);save()}
+function buyPremium(id){let p=P.find(x=>x[0]===id);if(!p||has(id)||s.pc<p[2])return;s.pc-=p[2];s.premium[id]=true;log('[PREMIUM] '+p[1]);draw(true)}
+function buyResearch(id){let r=R.find(x=>x[0]===id);if(!r)return;let p=Math.ceil(r[2]*1.4**rl(id));if(!Number.isFinite(p)||s.zdt<p)return;s.zdt-=p;s.research[id]=rl(id)+1;log('[ZERO DAY] '+r[1]+' LV'+rl(id));draw(true)}
+const SAVE_KEY='ghostnet-pacing-v32',BACKUP_PREFIX='ghostnet-v32-backup-',BACKUP_INDEX='ghostnet-v32-backup-index';
+let lastBackedUpAt=0;
+function snapshot(){let data={...s,lastSeen:now()};return JSON.stringify({game:'GHOSTNET',version:33,exportedAt:new Date().toISOString(),data})}
+function backup(label='automatic'){
+ try{
+  const i=(Number(localStorage.getItem(BACKUP_INDEX))||0)%3;
+  localStorage.setItem(BACKUP_PREFIX+i,JSON.stringify({label,at:now(),payload:snapshot()}));
+  localStorage.setItem(BACKUP_INDEX,String((i+1)%3));lastBackedUpAt=now();return true;
+ }catch(e){return false}
+}
+function save(){try{
+ s.lastSeen=now();localStorage.setItem(SAVE_KEY,snapshot());return true;
+}catch(e){return false}}
+function exportEconomyReport(){
+ let rows=['Item,Category,First level BTC,Level 99 total BTC,Level 999 total BTC,Level 9999 total BTC'];
+ for(const x of [...H,...U]){
+  let g=H.includes(x)?1.15:x[3],type=H.includes(x)?'Hardware':'Software';
+  rows.push([x[1],type,cost(x[2],g,0),sumCost(x[2],g,0,99),sumCost(x[2],g,0,999),sumCost(x[2],g,0,9999)].join(','));
+ }
+ let blob=new Blob([rows.join('\n')],{type:'text/csv'}),url=URL.createObjectURL(blob);
+ let a=document.createElement('a');a.href=url;a.download='ghostnet-v30-ascension-economy.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
+ log('[ECONOMY] Exported full ascension cost report');draw(true);
+}
+function downloadSave(){
+ save();let text=snapshot(),blob=new Blob([text],{type:'application/json'}),url=URL.createObjectURL(blob);
+ let a=document.createElement('a');a.href=url;a.download='ghostnet-v33-save-'+new Date().toISOString().slice(0,10)+'.json';
+ document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
+ log('[SAVE VAULT] Exported portable save');draw(true);
+}
+function validateSave(raw){
+ if(typeof raw!=='string'||raw.length>4e6)throw Error('Save file too large');
+ const o=JSON.parse(raw),d=o&&o.data;
+ if(!d||typeof d!=='object'||Array.isArray(d)||![15,16,18,19,20,21,22,23,30,32,33].includes(o.version))throw Error('Unrecognized GHOSTNET save format');
+ const numeric=['btc','earned','lifetime','hosts','hpower','prestiges','pc','zdt','perkPoints','perkSpent','tier','unlocked','zeroSignal','zeroRunSeconds'];
+ for(const k of numeric){if(d[k]!==undefined&&(!Number.isFinite(d[k])||d[k]<0))throw Error('Invalid '+k)}
+ if((d.tier||1)>10||(d.unlocked||1)>10)throw Error('Invalid target tier');
+ if(!d.up||typeof d.up!=='object'||Array.isArray(d.up))throw Error('Invalid upgrade data');
+ for(const x of [...H,...U]){
+  let value=d.up[x[0]]||0;
+  if(!Number.isInteger(value)||value<0||value>9999)throw Error('Invalid level for '+x[1]);
+ }
+ if(d.perks&&typeof d.perks==='object')for(const p of perkDefs){let n=d.perks[p[0]]||0;if(!Number.isInteger(n)||n<0||n>p[3])throw Error('Invalid perk level')}
+ if(d.ascensions){if(typeof d.ascensions!=='object'||Array.isArray(d.ascensions))throw Error('Invalid ascension data');for(const x of [...H,...U]){let n=d.ascensions[x[0]]||0;if(!Number.isSafeInteger(n)||n<0||n>1000000)throw Error('Invalid ascension count')}}
+ if(d.research&&typeof d.research==='object')for(const n of Object.values(d.research))if(!Number.isSafeInteger(n)||n<0||n>10000)throw Error('Invalid research');
+ if(d.tierBreaches&&(!Array.isArray(d.tierBreaches)||d.tierBreaches.length>10||d.tierBreaches.some(n=>!Number.isSafeInteger(n)||n<0)))throw Error('Invalid tier mastery');
+ if(d.intel&&(!d.intel.unlockedAwards||typeof d.intel.unlockedAwards!=='object'))throw Error('Invalid achievement archive');
+ if(d.intel)for(const key of ['totalBreaches','totalDetections','taps','levelsPurchased']){if(d.intel[key]!==undefined&&(!Number.isSafeInteger(d.intel[key])||d.intel[key]<0))throw Error('Invalid career statistic '+key)}
+ if(d.journal&&(!Array.isArray(d.journal)||d.journal.length>1000||d.journal.some(j=>!j||typeof j!=='object'||typeof j.text!=='string'||j.text.length>500||!Number.isFinite(j.at))))throw Error('Invalid network journal');
+ if(d.events&&(!Array.isArray(d.events)||d.events.length>10000||d.events.some(v=>!Number.isFinite(v))))throw Error('Invalid event history');
+ return {version:o.version,data:d};
+}
+function adoptSave(raw){
+ const parsed=validateSave(raw),d=parsed.data;
+ let base=fresh(),merged={...base,...d,intel:{...base.intel,...(d.intel&&typeof d.intel==='object'?d.intel:{})},journal:Array.isArray(d.journal)?d.journal.slice(-32):[],logs:[],target:null,progress:0,trace:0,tab:'prestige'};
+ if(!Number.isFinite(d.intel?.totalBreaches))merged.intel.totalBreaches=Math.max(0,d.breaches||0);
+ if(!Number.isFinite(d.intel?.totalDetections))merged.intel.totalDetections=Math.max(0,d.failures||0);
+ for(const key of ['up','ascensions','perks','research','premium','ach','ops','opsDone','pcLevels','pcBoosts','ads']){
+  merged[key]=Object.assign(Object.create(null),base[key]||{},d[key]&&typeof d[key]==='object'&&!Array.isArray(d[key])?d[key]:{});
+ }
+ for(const x of [...H,...U])merged.up[x[0]]=Math.max(0,Math.min(9999,merged.up[x[0]]||0));
+ merged.events=Array.isArray(d.events)?d.events.filter(t=>t>now()-3600000&&t<=now()).slice(-20):[];
+ merged.nextEvent=Math.max(now()+15000,Number(d.nextEvent)||0);
+ merged.bulk=[1,10,'max'].includes(d.bulk)?d.bulk:1;
+ merged.speed=[1,10,100].includes(d.speed)?d.speed:1;
+ merged.tierBreaches=Array.isArray(d.tierBreaches)?d.tierBreaches.slice(0,10).map(v=>Number.isFinite(v)&&v>=0?v:0):Array(10).fill(0);
+ while(merged.tierBreaches.length<10)merged.tierBreaches.push(0);
+ merged.lastSeen=Number.isFinite(d.lastSeen)?Math.min(now(),d.lastSeen):now();
+ backup('before import');s=merged;
+ spawn();offline();checkAch();
+ log('[SAVE VAULT] Imported v'+parsed.version+' progress');
+ save();draw(true);
+}
+function restoreBackup(){
+ const items=[];
+ for(let i=0;i<3;i++){try{let raw=localStorage.getItem(BACKUP_PREFIX+i);if(raw){let b=JSON.parse(raw);if(b.payload)items.push(b)}}catch(e){}}
+ if(!items.length){alert('No local backups found. Export a save file regularly for safety.');return}
+ items.sort((a,b)=>b.at-a.at);
+ let list=items.map((b,i)=>(i+1)+': '+new Date(b.at).toLocaleString()+' ('+b.label+')').join('\n');
+ let answer=prompt('Restore which backup?\n'+list+'\n\nEnter 1 to '+items.length+'.');
+ if(answer===null)return;
+ let idx=Number(answer)-1;
+ if(!Number.isInteger(idx)||idx<0||idx>=items.length){alert('Invalid backup number');return}
+ if(!confirm('Restore the selected backup? Current progress will be backed up first.'))return;
+ try{adoptSave(items[idx].payload)}catch(e){alert('Could not restore: '+e.message)}
+}
+$('savefile').addEventListener('change',async e=>{
+ const file=e.target.files&&e.target.files[0];if(!file)return;
+ try{
+  if(file.size>4000000)throw Error('File exceeds 4 MB limit');
+  const raw=await file.text();validateSave(raw);
+  if(confirm('Import this save? Current progress will be backed up automatically.'))adoptSave(raw);
+ }catch(err){alert('Import failed: '+err.message)}
+ e.target.value='';
+});
+
+function offline(){let elapsed=(now()-s.lastSeen)/1000;if(elapsed>=60){let seconds=Math.min(14400,elapsed);addZeroSignal(seconds,true);s.zeroRunSeconds+=seconds*.25;let btc=Math.max(0,production())*seconds*(.2+.05*abilityRank('garage'));if(Number.isFinite(btc)&&btc>0){s.btc+=btc;s.earned+=btc;s.lifetime+=btc;s.intel.offlineBTC+=btc;log('[OFFLINE] +₿'+fmt(btc));unlock()}}s.lastSeen=now()}
+function prestige(){let n=tokens();if(!n||!zeroEligible())return;if(!confirm('EXECUTE ZERO DAY? Gain ◆'+fmt(n)+' ZDT, resetting BTC, normal upgrades, targets, and hosts. Classified operations and mastery remain.'))return;let o=s;s=fresh();Object.assign(s,{intel:o.intel,journal:o.journal,ascensions:o.ascensions,perkPoints:o.perkPoints,perkSpent:o.perkSpent,perks:o.perks,pcLevels:o.pcLevels,pcBoosts:o.pcBoosts,balanceVersion:16,lifetime:o.lifetime,awarded:o.awarded+n,zdt:o.zdt+n,prestiges:o.prestiges+1,research:o.research,premium:o.premium,pc:o.pc,ads:o.ads,ach:o.ach,ops:o.ops,opsDone:o.opsDone,tierBreaches:o.tierBreaches,targetFinds:o.targetFinds,targetBounties:o.targetBounties,events:o.events,nextEvent:o.nextEvent,liveEvent:o.liveEvent,speed:o.speed,eco:o.eco,bulk:o.bulk,directive:o.directive,tab:'prestige'});s.hosts=Math.floor(o.hosts*.01*perkLvl('legacy'));s.hpower=o.hpower*.01*perkLvl('legacy');spawn();log('[ZERO DAY] +◆'+fmt(n));save();draw(true)}
+function effect(id,n){if(id==='ddos')return'×'+fmt(1+Math.min(10,1.2*Math.log1p(n)))+' attack power';if(id==='vps')return'−'+(100*(1-1/(1+.2*n))).toFixed(1)+'% detection';if(id==='worm')return'+'+n*4+' percentage points recruitment';if(id==='host')return'×'+fmt(1+Math.min(6,Math.log1p(n)))+' host power';if(id==='stealth')return'−'+(100*(1-.8**n)).toFixed(1)+'% detection';if(id==='wallet')return'×'+fmt(1+Math.min(7,1.3*Math.log1p(n)))+' BTC';return''}
+function entry(name,desc,current,next,label,attr,disabled){return'<div class="entry"><div class="details"><div class="name">'+name+'</div><div class="desc">'+desc+'</div><div class="current">'+current+'</div><div class="next">'+next+'</div></div><button class="buy" '+attr+' '+(disabled?'disabled':'')+'>'+label+'</button></div>'}
+function fmtBTC(n){
+ if(!Number.isFinite(n))return '∞';
+ if(n===0)return '0';
+ if(n<0)return '-'+fmtBTC(-n);
+ if(n<.00000001)return n.toExponential(3);
+ if(n<1)return n.toFixed(8).replace(/0+$/,'').replace(/\.$/,'');
+ if(n<1000)return n.toLocaleString('en-US',{maximumFractionDigits:4});
+ return fmt(n);
+}
+function shopParts(id){
+ let e=H.find(x=>x[0]===id),u=U.find(x=>x[0]===id),x=e||u;
+ if(!x)return null;
+ let n=lv(id),base=x[2],g=e?1.15:u[3],q=quantity(base,g,n),selected=Math.min(MAX_LEVEL-n,s.bulk==='max'?q:s.bulk);
+ let unit=cost(base,g,n),total=sumCost(base,g,n,selected),ok=selected>0&&Number.isFinite(total)&&total<=s.btc+1e-12;
+ let current=e?'Current: +'+fmt(n*x[3]*itemMastery(id))+' H/s':'Current: '+effect(id,n);
+ let future=e?'After purchase: +'+fmt((n+Math.max(0,selected))*x[3]*itemMastery(id))+' H/s · '+duration().toFixed(2)+'s → '+duration({id,level:n+Math.max(0,selected)}).toFixed(2)+'s':'After purchase: '+effect(id,n+Math.max(0,selected));
+ let bulkText=n>=MAX_LEVEL?'MAX LEVEL':selected>0?'Selected ×'+selected+': ₿'+fmtBTC(total):'Selected MAX: insufficient BTC';
+ return {x,n,current,future,unit,bulkText,ok,atMax:n>=MAX_LEVEL};
+}
+function itemMilestoneMarkup(id,n){
+ let next=nextMilestone(n),prev=previousMilestone(next),fraction=n>=9999?100:100*Math.max(0,n-prev)/(next-prev);
+ let label=n>=9999?'ASCENSION READY':'NEXT MILESTONE · LV'+next;
+ let remaining=n>=9999?'ASCEND NOW':fmt(next-n)+' to go';
+ return '<div class="milestone-line"><span>'+label+'</span><span>'+remaining+'</span></div><div class="milestone-track" role="progressbar" aria-label="Progress toward next milestone" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+fraction.toFixed(1)+'"><span class="milestone-fill" style="width:'+fraction.toFixed(1)+'%"></span></div>';
+}
+function shopRow(id){
+ let d=shopParts(id);if(!d)return '';
+ return '<div class="entry '+(d.atMax?'maxed':'')+'" data-shoprow="'+id+'"><div class="details"><div class="name">'+d.x[1]+' <span class="dim">LV'+d.n+'/9999</span> <span class="purple">✦'+asc(id)+'</span></div><div class="desc">'+d.x[4]+'</div><div class="current">'+d.current+' · Ascension ×'+fmt(itemMastery(id))+'</div><div class="ability-note">✦ '+abilityDescription(id)+'</div>'+itemMilestoneMarkup(id,d.n)+'<div class="next" data-shopnext="'+id+'">'+(d.atMax?'MAX LEVEL · ASCENSION AVAILABLE':d.future)+'</div><div class="price" style="font-size:10px;margin-top:4px;color:#f4c979">'+(d.atMax?'Maxed out':'Next level: <strong>₿'+fmtBTC(d.unit)+'</strong>')+'</div><div class="price" data-shoptotal="'+id+'" style="font-size:10px;margin-top:3px;color:#f4c979">'+(d.atMax?'Earn +'+ascAward(id)+' PP by ascending':d.bulkText)+'</div></div><button class="buy" '+(d.atMax?'data-ascend="'+id+'"':'data-buy="'+id+'"')+' '+(d.atMax||d.ok?'':'disabled')+'>'+(d.atMax?'ASCEND':'BUY')+'</button></div>';
+}
+function updateShopPrices(){
+ if(s.tab!=='shop')return;
+ for(const row of $('shop').querySelectorAll('[data-shoprow]')){
+  let id=row.dataset.shoprow,d=shopParts(id);if(!d)continue;
+  const total=row.querySelector('[data-shoptotal]'),next=row.querySelector('[data-shopnext]'),btn=row.querySelector('[data-buy]');
+  if(total&&total.textContent!==d.bulkText)total.textContent=d.bulkText;
+  if(next&&next.textContent!==(d.atMax?'MAX LEVEL · ASCENSION AVAILABLE':d.future))next.textContent=d.atMax?'MAX LEVEL · ASCENSION AVAILABLE':d.future;
+  if(btn)btn.disabled=!d.ok;
+ }
+}
+
+let intelView='operations';
+const intelAwards=[
+ ['first100','SCRIPT KIDDIE','100 successful breaches',x=>x.intel.totalBreaches,100],
+ ['breach1000','NETWORK GHOST','1,000 successful breaches',x=>x.intel.totalBreaches,1000],
+ ['breach10000','INVISIBLE ARMY','10,000 successful breaches',x=>x.intel.totalBreaches,10000],
+ ['click100','KEYBOARD WARRIOR','100 manual taps',x=>x.intel.taps,100],
+ ['click1000','HANDS-ON OPERATOR','1,000 manual taps',x=>x.intel.taps,1000],
+ ['collector','HARDWARE COLLECTOR','Purchase 500 item levels',x=>x.intel.levelsPurchased,500],
+ ['contracts5','CONTRACTOR','Complete 5 network contracts',x=>x.intel.contracts,5],
+ ['rarity3','SIGNAL HUNTER','Claim 3 rare caches',x=>x.intel.raresClaimed,3],
+ ['asc1','ASCENSION INITIATE','Ascend any item',x=>Object.values(x.ascensions).reduce((a,b)=>a+(Number(b)||0),0),1],
+ ['asc5','ASCENSION ARCHITECT','Earn 5 total ascensions',x=>Object.values(x.ascensions).reduce((a,b)=>a+(Number(b)||0),0),5],
+ ['master10','STAR CHASER','Earn 10 tier mastery stars',x=>totalStars(),10],
+ ['eclipse','ECLIPSE CLEARED','Complete all 6 classified ops',x=>Ops.filter(o=>done(o[0])).length,6]
+];
+function registerIntelAwards(){for(const [id,title,,fn,goal] of intelAwards){if(!s.intel.unlockedAwards[id]&&fn(s)>=goal){s.intel.unlockedAwards[id]=now();log('[INTEL AWARD] '+title)}}}
+function formatDuration(seconds){
+ if(!Number.isFinite(seconds)||seconds<0)return 'NO ESTIMATE';
+ if(seconds<60)return '<1 min';
+ const mins=Math.ceil(seconds/60);
+ if(mins<60)return fmt(mins)+' min';
+ const hrs=Math.ceil(seconds/3600);
+ if(hrs<48)return fmt(hrs)+' h';
+ const days=Math.ceil(seconds/86400);
+ if(days<365)return fmt(days)+' days';
+ return fmt((seconds/31557600).toFixed(1))+' years';
+}
+/* v3.1 BALANCE LAB — runs a separate, expected-value model. Never touches saved gameplay. */
+let labResults=null,labBusy=false,labGraphWindow=3600,labVerification=null;
+const labHorizons=[3600,86400,2592000,31536000];
+function simulateOneItem(testId){
+ const pick=H.find(x=>x[0]===testId)||U.find(x=>x[0]===testId),id=pick?.[0]||null;
+ const base=pick?.[2]||0,g=pick?(H.includes(pick)?1.15:pick[3]):1;
+ const points=[{time:0,earned:0}], snapshots=[],milestones=[1e3,1e6,1e9,1e11],milestoneTime=[null,null,null,null];
+ const tmax=labHorizons.at(-1), state={time:0,btc:0,earned:0,level:0,hosts:0,hpower:0,tier:1,breaches:Array(10).fill(0),firstAscension:null,tier10At:null};
+ let tries=0,nextSample=1;
+ while(state.time<tmax&&tries++<130000){
+  const level=state.level,tt=T[state.tier-1];
+  // Spend only on the selected upgrade. All other shop items remain Level 0.
+  if(pick&&level<MAX_LEVEL){
+   let lo=0,hi=MAX_LEVEL-level;
+   while(lo<hi){let m=Math.ceil((lo+hi)/2);if(sumCost(base,g,level,m)<=state.btc+1e-11)lo=m;else hi=m-1}
+   if(lo){state.btc=Math.max(0,state.btc-sumCost(base,g,level,lo));state.level+=lo;
+    if(state.level===MAX_LEVEL&&state.firstAscension===null)state.firstAscension=state.time;continue}
+  }
+  const itemLv=key=>key===id?state.level:0;
+  const stars=state.breaches.reduce((a,n)=>a+(n>=10)+(n>=50)+(n>=200),0);
+  const opDone=threshold=>state.breaches[threshold-1]>=({1:12,3:35,5:70,6:120,8:100,10:250}[threshold]||Infinity);
+  const a=(state.hosts>=5?1.1:1)*(state.hosts>=1000?1.4:1);
+  const eq=10+H.reduce((v,h)=>v+h[3]*itemLv(h[0]),0);
+  const hostMult=1+Math.min(6,Math.log1p(itemLv('host')));
+  const pow=Math.max(10,(eq+state.hpower*hostMult*(state.hosts>=100?1.25:1)*(opDone(8)?1.5:1))*(1+Math.min(10,1.2*Math.log1p(itemLv('ddos')))));
+  const speed=(1+Math.log10(1+pow/100))*(state.hosts>=25?1.15:1)*(state.tier===10?2:1)*(opDone(6)?1.35:1);
+  const duration=Math.max(.45,(state.tier===7?9.6:8)/Math.max(1,speed));
+  const wallet=1+Math.min(7,1.3*Math.log1p(itemLv('wallet')));
+  const baseReward=tt[1]*(state.tier===4?1.2:1)*wallet*a*(opDone(3)?1.2:1)*(opDone(10)?1.5:1)*(1+.015*stars);
+  const randomBonus=state.tier===3?.08:state.tier===5?.18:0;
+  const perBreach=baseReward*(1+randomBonus);
+  const r=2.2*tt[3]*(state.tier===4?1.25:1)*Math.pow(.8,itemLv('stealth'))/(1+.2*itemLv('vps'))*(opDone(5)?.75:1);
+  // If detection reaches 100 first, no BTC or recruitment is produced by that breach.
+  const success=duration*r<100;
+  const recruit=success?Math.min(.95,tt[2]+.04*itemLv('worm')+(state.tier===2?.05:0)+(opDone(1)?.03:0)):0;
+  const nextCost=pick&&state.level<MAX_LEVEL?cost(base,g,state.level):Infinity;
+  const neededPurchase=success&&perBreach>0&&Number.isFinite(nextCost)?Math.max(1,Math.ceil((nextCost-state.btc)/(perBreach*(1-1e-12)))):Infinity;
+  const thresholds=[0,.004,.025,.15,1,6,40,250,1600,10000];
+  const tierTarget=state.tier<10?thresholds[state.tier]:Infinity;
+  const neededTier=success&&perBreach>0?Math.max(1,Math.ceil((tierTarget-state.earned)/perBreach)):Infinity;
+  const nextHorizon=labHorizons.find(v=>v>state.time+1e-9)||tmax;
+  const neededTime=Math.max(1,Math.ceil((nextHorizon-state.time)/duration));
+  // An adaptive expected-value step limits host-power error while allowing millions of breaches per step.
+  const boundGrowth=Math.max(12,Math.floor((state.hosts+100)*.06/Math.max(.005,recruit)));
+  let n=Math.min(1500000,neededPurchase,neededTier,neededTime,boundGrowth);
+  // Also stop at the first three tier-mastery stars and classified-operation unlocks.
+  const k=state.breaches[state.tier-1];
+  for(const edge of [10,12,35,50,70,100,120,200,250])if(edge>k){n=Math.min(n,Math.ceil(edge-k));break}
+  n=Math.max(1,Math.floor(n));
+  const dt=Math.min(n*duration,nextHorizon-state.time,tmax-state.time),breaches=dt/duration;
+  state.time+=dt;
+  if(success){
+   const credited=breaches*perBreach;
+   state.btc+=credited;state.earned+=credited;
+   let joined=breaches*recruit;
+   if(state.tier===9)joined+=breaches*.15;
+   state.hosts+=joined;
+   state.hpower+=joined*tt[4]*(state.tier===7?1.35:1);
+   state.breaches[state.tier-1]+=breaches;
+  }
+  if(state.tier<10&&state.earned+1e-11>=thresholds[state.tier]){state.tier++;if(state.tier===10)state.tier10At=state.time;}
+  for(let i=0;i<milestones.length;i++)if(milestoneTime[i]===null&&state.earned>=milestones[i])milestoneTime[i]=state.time;
+  if(state.time>=nextSample || state.time>=tmax || state.time>=nextHorizon-1e-7){points.push({time:state.time,earned:state.earned});nextSample=Math.max(state.time*1.22,state.time+60)}
+  if(state.time>=nextHorizon-1e-7){snapshots.push({time:state.time,earned:state.earned,level:state.level,tier:state.tier});}
+  if(!success)break;
+ }
+ return {id:id||'none',name:pick?pick[1]:'No shop purchases',state,points,snapshots,milestoneTime,iterations:tries,limitReached:tries>=130000};
+}
+function labSelfCheck(rows){
+ let issues=[];
+ if(rows.length!==17)issues.push('Unexpected number of strategies');
+ for(const r of rows){
+  if(!Number.isFinite(r.state.earned)||r.state.earned<0||r.state.level<0||r.state.level>9999)issues.push('Invalid '+r.name);
+  if(r.snapshots.length!==4)issues.push('Missing timeline '+r.name);
+  if(r.points.some((v,i)=>i>0&&(v.earned+1e-7<r.points[i-1].earned||v.time<r.points[i-1].time)))issues.push('Nonmonotonic '+r.name);
+  if(r.limitReached)issues.push('Iteration limit '+r.name);
+ }
+ for(const x of [...H,...U]){
+  const g=H.includes(x)?1.15:x[3],b=x[2];
+  for(const n of [0,1,10,99,999,9998]){
+   let one=cost(b,g,n),sum=sumCost(b,g,n,1);
+   if(!(one>=0&&Number.isFinite(one))||Math.abs(one-sum)>Math.max(1e-9,one*1e-8))issues.push('Pricing '+x[0]+' '+n);
+  }
+ }
+ return issues;
+}
+function labTime(sec){if(sec===null)return '—';if(sec<3600)return (sec/60).toFixed(1)+'m';if(sec<86400)return (sec/3600).toFixed(1)+'h';if(sec<31536000)return (sec/86400).toFixed(1)+'d';return (sec/31536000).toFixed(1)+'y'}
+function runBalanceLab(){if(labBusy)return;labBusy=true;const status=$('lab-status');if(status)status.textContent='Running 17 one-year strategies…';
+ setTimeout(()=>{
+  let start=performance.now();try{labResults=[simulateOneItem(null),...[...H,...U].map(x=>simulateOneItem(x[0]))];labVerification=labSelfCheck(labResults);
+   const failed=labResults.filter(x=>x.limitReached).length;
+   log('[BALANCE LAB] '+labResults.length+' strategies · '+Math.round(performance.now()-start)+'ms'+(labVerification.length?' · '+labVerification.length+' warnings':' · checks OK') );
+  }catch(e){labResults=null;log('[BALANCE LAB] '+e.message)}
+  labBusy=false;draw(true);drawLabGraph();
+ },0);
+}
+/* v3.2 PRESTIGE PACING TEST - expected-value automation, from fresh runs.
+   Simulates time to readiness at stage 1 and stage 2 for several shop strategies.
+   Uses the same tier/host/power/reward/price approximations as the full balance lab. */
+let prestigeLabResults=null;
+function simulatePrestigePacing(id,stage){
+ const item=H.find(x=>x[0]===id)||U.find(x=>x[0]===id);
+ const g=item?(H.includes(item)?1.15:item[3]):1, base=item?.[2]||0;
+ const z={time:0,btc:0,earned:0,level:0,hosts:0,hpower:0,tier:1,signal:0,breaches:Array(10).fill(0)};
+ const points=[{time:0,signal:0,earned:0}];let k=0,purchases=0,buyTimes=[],tierTimes=[{tier:1,time:0}],lastPurchase=0,maxGap=0;
+ const goal=zeroThreshold(stage),maxSec=stage===0?7200:43200;
+ while(z.time<maxSec&&z.signal<goal&&k++<150000){
+  const t=T[z.tier-1];
+  if(item&&z.level<MAX_LEVEL){let lo=0,hi=MAX_LEVEL-z.level;
+   while(lo<hi){let m=Math.ceil((lo+hi)/2);if(sumCost(base,g,z.level,m)<=z.btc+1e-11)lo=m;else hi=m-1}
+   if(lo){z.btc=Math.max(0,z.btc-sumCost(base,g,z.level,lo));z.level+=lo;purchases+=lo;buyTimes.push(z.time);maxGap=Math.max(maxGap,z.time-lastPurchase);lastPurchase=z.time;continue}
+  }
+  const level=key=>id===key?z.level:0;
+  const eq=10+H.reduce((a,h)=>a+h[3]*level(h[0]),0);
+  const pow=Math.max(10,(eq+z.hpower*(1+Math.min(6,Math.log1p(level('host')))))*(1+Math.min(10,1.2*Math.log1p(level('ddos')))))*(1+.08*[.10,.25,.50,.75].filter(edge=>z.signal>=goal*edge).length);
+  const d=Math.max(.45,(z.tier===7?9.6:8)/((1+Math.log10(1+pow/100))*(z.hosts>=25?1.15:1)*(z.tier===10?2:1)));
+  const stars=z.breaches.reduce((a,n)=>a+(n>=10)+(n>=50)+(n>=200),0);
+  const wallet=1+Math.min(7,1.3*Math.log1p(level('wallet')));
+  const chapterCount=[.10,.25,.50,.75].filter(edge=>z.signal>=goal*edge).length;
+  const payout=t[1]*(1+.12*chapterCount)*(z.tier===4?1.2:1)*wallet*(z.hosts>=5?1.1:1)*(z.hosts>=1000?1.4:1)*(1+.015*stars)*(z.tier===5?1.18:z.tier===3?1.08:1)*(stage?1.3:1);
+  const recruit=Math.min(.95,t[2]+.04*level('worm')+(z.tier===2?.05:0));
+  const r=2.2*t[3]*(z.tier===4?1.25:1)*Math.pow(.8,level('stealth'))/(1+.2*level('vps'));
+  if(d*r>=100)break;
+  const nextPrice=item&&z.level<MAX_LEVEL?cost(base,g,z.level):Infinity;
+  const buyN=Number.isFinite(nextPrice)?Math.max(1,Math.ceil((nextPrice-z.btc)/(payout*(1-1e-12)))):Infinity;
+  const unlocks=[0,.004,.025,.15,1,6,40,250,1600,10000];
+  const tierN=z.tier<10?Math.max(1,Math.ceil((unlocks[z.tier]-z.earned)/payout)):Infinity;
+  const sigRate=signalRate(z.tier,pow);
+  const signalN=Math.max(1,Math.ceil((goal-z.signal)/(d*sigRate)));
+  let n=Math.min(250000,buyN,tierN,signalN,Math.ceil((maxSec-z.time)/d),Math.max(12,Math.floor((z.hosts+100)*.06/Math.max(.005,recruit))));
+  n=Math.max(1,Math.floor(n));let dt=Math.min(n*d,maxSec-z.time);let breaches=dt/d;
+  z.time+=dt;z.signal+=dt*sigRate;z.earned+=breaches*payout;z.btc+=breaches*payout;
+  z.hosts+=breaches*recruit;z.hpower+=breaches*recruit*t[4]*(z.tier===7?1.35:1);z.breaches[z.tier-1]+=breaches;
+  if(z.tier<10&&z.earned>=unlocks[z.tier]-1e-10&&chapterTierReady(z.tier+1,z.signal,stage)){z.tier++;tierTimes.push({tier:z.tier,time:z.time});}
+  if(points.length<1000&&(z.time-points.at(-1).time>=120||z.signal>=goal))points.push({time:z.time,signal:z.signal,earned:z.earned});
+ }
+ return {id:id||'none',stage:stage+1,name:item?item[1]:'No purchases',time:z.signal>=goal&&z.tier>=(stage?8:5)&&z.earned>=(stage?10000:100)?z.time:null,signal:z.signal,tier:z.tier,earned:z.earned,points,iterations:k,purchases,buyTimes,tierTimes,maxGap:Math.max(maxGap,z.time-lastPurchase),maxLevel:z.level};
+}
+function runPrestigeLab(){prestigeLabResults=[];for(const id of [null,'laptop','wallet','worm','mainframe'])for(let stage=0;stage<2;stage++)prestigeLabResults.push(simulatePrestigePacing(id,stage));draw(true)}
+function prestigeLabPanel(){
+ let h='<div class="section gold">◆ ZERO DAY PACING TEST</div><div class="dim small">Fast expected-value simulation of staged target chapters, revised item prices and the prestige research curve. Runs five automated buying strategies from zero for each prestige stage, assuming the first 1-ZDT Ghost Primer research upgrade is bought before the second run. Random bonuses are averaged; no manual taps, paid boosts or offline accrual. Signal earns at real-time speed, regardless of hacking-speed setting. Saved gameplay is unaffected.</div><div style="margin:8px 0"><button data-prestige-lab>▶ TEST 30m / 6h TARGETS</button></div>';
+ if(!prestigeLabResults)return h;
+ h+='<table style="width:100%;font-size:10px;border-collapse:collapse"><thead><tr><th style="text-align:left">STRATEGY</th><th>FIRST ZERO DAY</th><th>SECOND ZERO DAY</th></tr></thead><tbody>';
+ for(let i=0;i<prestigeLabResults.length;i+=2){let a=prestigeLabResults[i],b=prestigeLabResults[i+1];h+='<tr style="border-top:1px solid #243f30"><td style="padding:6px 0">'+a.name+'</td><td style="text-align:right">'+labTime(a.time)+'</td><td style="text-align:right">'+labTime(b.time)+'</td></tr>'}
+ h+='</tbody></table><div class="dim small">Purchases and target-tier unlocks are tracked as gameplay activity. Model estimates exclude clicking, random events, offline income and optional Premium boosts.</div>';h+='<div class="section gold">◈ 2ND RUN ACTIVITY CHECK</div><table style="width:100%;font-size:10px"><tr><th align="left">STRATEGY</th><th>PURCHASED LEVELS</th><th>LONGEST PURCHASE GAP</th><th>TIER 10</th></tr>';for(const q of prestigeLabResults.filter(q=>q.stage===2)){let t10=q.tierTimes.find(t=>t.tier===10);h+='<tr><td>'+q.name+'</td><td align="right">'+fmt(q.purchases)+'</td><td align="right">'+labTime(q.maxGap)+'</td><td align="right">'+labTime(t10?.time??null)+'</td></tr>'}h+='</table>';return h;
+}
+function labPanel(){
+ let h=prestigeLabPanel()+'<div class="section gold">◈ BALANCE LAB · FAST SIMULATION</div><div class="dim small">17 strategies, each simulated from ₿0 for one in-game year. One selected shop item is bought repeatedly with BUY MAX; no purchases in the baseline. Deterministic expected-value recruitment and jackpots; automatic target switching. No tapping, boosts, prestige or ascension resets. <strong>Simulation does not alter your save.</strong></div>';
+ h+='<div style="margin:10px 0"><button data-run-lab style="min-height:36px">▶ RUN 1-YEAR SIMULATION</button> <span id="lab-status" class="dim small">'+(labBusy?'RUNNING':labResults?'LAST SWEEP READY':'NOT RUN')+'</span></div>';
+ if(!labResults)return h;
+ h+='<div class="dim small">Validation: '+(labVerification?.length?labVerification.length+' warning(s): '+labVerification.slice(0,3).join('; '):'PASS · 17 strategies, milestones and price arithmetic')+'</div>';
+ h+='<div style="display:flex;gap:6px;margin:7px 0"><button data-lab-range="3600" class="'+(labGraphWindow===3600?'sel':'')+'">FIRST HOUR</button><button data-lab-range="31536000" class="'+(labGraphWindow===31536000?'sel':'')+'">FULL YEAR</button></div>';
+ h+='<canvas id="lab-chart" role="img" aria-label="Comparison of total lifetime Bitcoin over simulated time" style="width:100%;height:220px;display:block;background:#07140e;border:1px solid #31543a;border-radius:8px"></canvas>';
+ h+='<div class="dim small">Graph: lifetime BTC on a logarithmic scale, for the selected time window. Curve colors match table labels.</div>';
+ const colors=['#9da7aa','#a5f0b1','#77b4fd','#f3ca70','#e994b5','#9be1db','#cfaaed','#ffad83','#7fe39d','#c3bdff','#ef8a82','#a6b0db','#77d19c','#f0c57a','#b3ade4','#c4e887','#f09ed7'];
+ h+='<div style="overflow-x:auto"><table style="width:100%;font-size:10px;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:6px">ITEM ONLY</th><th>1 DAY BTC</th><th>30 DAYS BTC</th><th>1 YEAR BTC</th><th>MAX LV</th><th>TO LV9999</th><th>TIER 10</th></tr></thead><tbody>';
+ for(let i=0;i<labResults.length;i++){let q=labResults[i],day=q.snapshots.find(v=>v.time>=86400-1e-5),month=q.snapshots.find(v=>v.time>=2592000-1e-5),year=q.snapshots.at(-1);
+ h+='<tr style="border-top:1px solid #243f30"><td style="color:'+colors[i]+';padding:7px 2px">'+q.name+'</td><td style="text-align:right">'+fmt(day?.earned||0)+'</td><td style="text-align:right">'+fmt(month?.earned||0)+'</td><td style="text-align:right">'+fmt(year?.earned||q.state.earned)+'</td><td style="text-align:right">'+fmt(q.state.level)+'</td><td style="text-align:right">'+labTime(q.state.firstAscension)+'</td></tr>';
+ }
+ h+='</tbody></table></div>';
+ const maxed=labResults.filter(v=>v.state.firstAscension!==null);h+='<div class="dim small" style="margin-top:7px">First ascension reached within one simulated year: '+maxed.length+'/16 items'+(labResults.some(x=>x.limitReached)?' · WARNING: iteration limit hit; some results are incomplete':'')+'. Estimates are directional, not exact gameplay forecasts.</div>';
+ return h;
+}
+function drawLabGraph(){const el=$('lab-chart');if(!el||!labResults)return;const rect=el.getBoundingClientRect(),w=Math.max(260,Math.round(rect.width)),h=220,dpr=Math.min(2,devicePixelRatio||1);el.width=w*dpr;el.height=h*dpr;const c=el.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);const left=45,right=w-12,top=14,bottom=h-27;
+ const max=Math.max(1,...labResults.map(r=>{let p=r.points.find(v=>v.time>=labGraphWindow);return p?.earned??r.state.earned})),ymax=Math.log10(1+max);const px=t=>left+Math.max(0,Math.min(1,t/labGraphWindow))*(right-left),py=v=>bottom-Math.log10(1+Math.max(0,v))/ymax*(bottom-top);
+ c.font='10px monospace';c.textBaseline='middle';c.fillStyle='#aec9b5';c.strokeStyle='#254733';c.lineWidth=1;
+ for(let i=0;i<=4;i++){let y=top+(bottom-top)*i/4;c.beginPath();c.moveTo(left,y);c.lineTo(right,y);c.stroke();c.fillText(fmt(Math.pow(10,ymax*(1-i/4))-1),3,y)}
+ for(const [t,l] of (labGraphWindow===3600?[[0,'0'],[900,'15m'],[1800,'30m'],[2700,'45m'],[3600,'1h']]:[[0,'0'],[86400,'1d'],[2592000,'30d'],[15768000,'6mo'],[31536000,'1y']])){let x=px(t);c.beginPath();c.moveTo(x,top);c.lineTo(x,bottom);c.stroke();c.fillText(l,Math.min(w-28,x+2),h-12)}
+ const colors=['#9da7aa','#a5f0b1','#77b4fd','#f3ca70','#e994b5','#9be1db','#cfaaed','#ffad83','#7fe39d','#c3bdff','#ef8a82','#a6b0db','#77d19c','#f0c57a','#b3ade4','#c4e887','#f09ed7'];
+ labResults.forEach((r,i)=>{c.beginPath();c.strokeStyle=colors[i];c.lineWidth=i===0?1.4:1.6;c.globalAlpha=.9;let pts=r.points;let drawn=0;pts.forEach(p=>{if(p.time>labGraphWindow+1e-6)return;if(drawn++===0)c.moveTo(px(p.time),py(p.earned));else c.lineTo(px(p.time),py(p.earned))});c.stroke()});c.globalAlpha=1;
+}
+
+function intelPanel(){
+ const num=Object.values(s.ascensions).reduce((a,b)=>a+(Number(b)||0),0);
+ const complete=intelAwards.filter(a=>s.intel.unlockedAwards[a[0]]).length;
+ let h='<div class="section gold">◈ NETWORK INTELLIGENCE</div><div class="dim small">Lifetime performance, milestones and recorded discoveries. Statistics are saved with your network.</div>';
+ const metrics=[['LIFETIME BTC','₿'+fmt(s.lifetime)],['LIFETIME BREACHES',fmt(s.intel.totalBreaches)],['LIFETIME DETECTIONS',fmt(s.intel.totalDetections)],['MANUAL TAPS',fmt(s.intel.taps)],['PRESTIGES',fmt(s.prestiges)],['ASCENSIONS',fmt(num)],['MASTERED STARS',totalStars()+'/30'],['CLASSIFIED OPS',Ops.filter(o=>done(o[0])).length+'/6'],['UPGRADE LEVELS BOUGHT',fmt(s.intel.levelsPurchased)],['CONTRACTS COMPLETED',fmt(s.intel.contracts)],['CREDIT DROPS EARNED','◆'+fmt(s.intel.creditsFound)],['RARE CACHES CLAIMED',fmt(s.intel.raresClaimed)],['OFFLINE BTC AWARDED','₿'+fmt(s.intel.offlineBTC)],['ACTIVE PLAYTIME',fmt(Math.floor(s.intel.activeSeconds/60))+' min'],['PERK POINTS EARNED',fmt(s.perkPoints+s.perkSpent)],['BEST TARGET TIER','T'+s.unlocked]];
+ h+='<div class="intel-grid">'+metrics.map(v=>'<div class="intel-stat"><small>'+v[0]+'</small><b>'+v[1]+'</b></div>').join('')+'</div>';
+ h+='<div class="section gold">◈ ASCENSION PLANNER · v3.0</div>';
+ h+='<div class="dim small">Remaining BTC to Level 9,999 for each item if bought alone. ETA assumes all future BTC earnings go to that item at your current estimated BTC/second; actual progression changes as you upgrade and recruit hosts.</div>';
+ let rate=Math.max(0,production());
+ h+='<div class="planner-grid">';
+ for(const x of [...H,...U]){
+  const id=x[0],n=lv(id),g=H.includes(x)?1.15:x[3],remaining=sumCost(x[2],g,n,MAX_LEVEL-n),progress=100*n/MAX_LEVEL;
+  const eta=remaining<=s.btc?'AFFORDABLE NOW':rate>0?formatDuration((remaining-s.btc)/rate):'NO ESTIMATE';
+  h+='<div class="planner-item"><div class="between"><strong>'+x[1]+'</strong><span class="purple">LV '+fmt(n)+'/9,999</span></div><div class="track"><div class="fill" style="width:'+progress.toFixed(2)+'%;background:#a8c6ff"></div></div><div class="dim small">Remaining ₿'+fmtBTC(remaining)+' · '+eta+'</div></div>';
+ }
+ h+='</div>';
+ h+=labPanel();
+ h+='<div class="section gold">◈ ACHIEVEMENT ARCHIVE · '+complete+'/'+intelAwards.length+'</div><div class="dim small">Achievements are collectible titles, not additional multipliers. This keeps economic balancing predictable.</div>';
+ for(const [id,title,desc,fn,goal] of intelAwards){const current=Math.min(goal,fn(s)),finished=!!s.intel.unlockedAwards[id];h+='<div class="intel-badge '+(finished?'complete':'')+'"><div class="between"><strong class="'+(finished?'gold':'green')+'">'+(finished?'★ ':'○ ')+title+'</strong><span class="dim small">'+fmt(current)+'/'+fmt(goal)+'</span></div><div class="dim small">'+desc+'</div><div class="track"><div class="fill" style="width:'+(100*current/goal).toFixed(2)+'%;background:'+(finished?'#edc576':'#79dfa0')+'"></div></div></div>'}
+ h+='<div class="section gold">◈ NETWORK JOURNAL</div><div class="dim small">Your last 32 major events, newest first.</div>';
+ let recent=(s.journal||[]).slice(-32).reverse();h+=recent.length?recent.map(j=>'<div class="intel-journal"><span class="dim">'+(Number.isFinite(j.at)?new Date(j.at).toLocaleString():'Unknown date')+'</span> '+String(j.text).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;')+'</div>').join(''):'<div class="dim small" style="padding:10px 0">Major milestones will appear here as you play.</div>';
+ return h;
+}
+function panel(){if(s.tab==='shop'){
+ let h='<div class="section purple">✦ ITEM ASCENSION · '+fmt(s.perkPoints)+' PP AVAILABLE</div><div class="dim small">Every item has milestones along the journey to Level 9,999. Ascension resets only that item, awards PP and grants +20% effectiveness. Your 1st, 3rd, and 5th ascensions unlock and improve its unique ability.</div><div class="section">PURCHASE QUANTITY</div><div class="bulk">'+[1,10,'max'].map(n=>'<button data-bulk="'+n+'" class="'+(s.bulk===n?'sel':'')+'">'+(n==='max'?'BUY MAX':'BUY ×'+n)+'</button>').join('')+'</div><div class="section">DIY HARDWARE</div>';
+ h+=H.map(x=>shopRow(x[0])).join('');
+ h+='<div class="section">BOTNET & SOFTWARE</div>';
+ return h+U.map(x=>shopRow(x[0])).join('');
+}
+if(s.tab==='targets'){let h='<div class="intel-controls"><button data-intel="operations" class="'+(intelView==='operations'?'sel':'')+'">OPERATIONS</button><button data-intel="dashboard" class="'+(intelView==='dashboard'?'sel':'')+'">◈ INTEL</button></div>';if(intelView==='dashboard')return h+intelPanel();h+='<div class="section gold">◇ NETWORK CONTRACTS</div><div class="dim small">Select a contract to earn BTC, Premium Credits or temporary hacking speed.</div>';if(s.contract){let c=s.contract;h+='<div class="contract"><strong class="gold">'+c.name+'</strong><div class="dim small">'+c.desc+'</div><div class="track"><div class="fill" style="width:'+100*c.progress/c.need+'%;background:#f2ce76"></div></div><div class="between small"><span>'+c.progress+'/'+c.need+'</span><span class="gold">'+c.rewardText+'</span></div></div>'}else{for(const c of contractOffers()){let label=c.pay==='btc'?'₿'+fmt(T[c.tier-1][1]*30*(1+.1*s.contractCycle)):c.pay==='pc'?'◆2 PC':'×2 speed / 90s';h+='<div class="contract"><strong class="gold">'+c.name+'</strong><div class="dim small" style="margin:5px 0">'+c.desc+'</div><div class="between"><span class="green small">'+label+'</span><button data-contract="'+c.id+'">ACCEPT</button></div></div>'}}h+='<div class="section">OPERATION DIRECTIVE</div><div class="choices">';for(const [id,m] of Object.entries(M))h+='<button data-mode="'+id+'" class="'+(s.directive===id?'sel':'')+'"><strong>'+m[0]+'</strong><div class="dim" style="font-size:9px;margin-top:5px">'+m[1]+'</div></button>';h+='</div><div class="section">◈ CLASSIFIED OPERATIONS · '+Ops.filter(o=>done(o[0])).length+'/6</div>';for(const o of Ops){let n=Math.min(o[3],s.ops[o[0]]||0),complete=done(o[0]),locked=s.unlocked<o[2]&&!complete;h+='<div class="op '+(complete?'done':'')+' '+(locked?'muted':'')+'"><div class="between"><strong class="'+(complete?'green':'gold')+'">'+(complete?'✓ ':'◈ ')+o[1]+'</strong><span>T'+o[2]+'</span></div><div class="dim small">'+(locked?'Unlock Tier '+o[2]:o[4])+'</div><div class="track"><div class="fill" style="width:'+100*n/o[3]+'%;background:#d8b76c"></div></div><div class="between small"><span>'+n+'/'+o[3]+' breaches</span><span class="green">'+(complete?'COMPLETE':'ACTIVE')+'</span></div><div class="green small">'+o[5]+'</div></div>'}h+='<div class="section">★ TIER MASTERY · '+totalStars()+'/30</div><div class="dim small">Earn stars at 10, 50, and 200 breaches per tier. Each star permanently adds +4% BTC.</div><div class="section">TARGET TIERS · DISTINCT TRAITS</div><div class="dim small">Each target tier has a unique mechanic. Selecting it keeps this tab open.</div>';h+=T.map((t,i)=>{let count=s.tierBreaches[i]||0,st=stars(i+1);return entry('T'+(i+1)+' '+t[0]+' <span class="gold">'+'★'.repeat(st)+'☆'.repeat(3-st)+'</span>','Base payout ₿'+fmt(t[1]),'Mastery: '+fmt(count)+' breaches'+(st<3?' · next star at '+starsNeeded[st]:' · COMPLETE'),'SPECIAL: '+traitLine(i+1),i+1>s.unlocked?'LOCKED':i+1===s.tier?'ACTIVE':'SELECT','data-tier="'+(i+1)+'"',i+1>s.unlocked||i+1===s.tier)}).join('');h+='<div class="section">NETWORK MILESTONES</div>';h+=Ach.map(([id,name,,bonus])=>'<div class="op"><strong class="'+(s.ach[id]?'green':'dim')+'">'+(s.ach[id]?'✓ ':'○ ')+name+'</strong><div class="gold small">'+bonus+'</div></div>').join('');return h}
+if(s.tab==='premium'){let h='<div class="notice">SIMULATED PREMIUM STORE · No real purchases or payments. Credit Drops and contracts earn PC. Repeatable upgrades and reusable boosts keep credits useful.</div><div class="purple" style="font-size:18px">◆ '+fmt(s.pc)+' PC</div><div style="display:flex;gap:5px;flex-wrap:wrap;margin:9px 0"><button data-grant="100">+100 PC</button><button data-grant="500">+500 PC</button><button data-grant="2000">+2000 PC</button></div>';h+='<div class="section purple">PERMANENT ONE-TIME UNLOCKS</div>';
+h+=P.map(p=>entry(p[1],p[3],has(p[0])?'Current: ACTIVE':'Current: Not owned',has(p[0])?'Permanent unlock active':'Next: '+p[3],has(p[0])?'OWNED':'◆'+p[2],'data-premium="'+p[0]+'"',has(p[0])||s.pc<p[2])).join('');
+h+='<div class="section purple">REPEATABLE PC UPGRADES</div><div class="dim small">Buy as many levels as you want. Costs grow independently and permanent benefits have diminishing returns.</div>';
+for(const x of RP){let n=pl(x[0]),price=repeatPrice(x),display=k=>x[0]==='license'?'×'+fmt(1+.08*Math.log1p(k))+' BTC':x[0]==='compression'?'×'+fmt(1+.12*Math.log1p(k))+' host power':'−'+(100*(1-1/(1+.1*Math.log1p(k)))).toFixed(1)+'% detection';
+h+=entry(x[1]+' <span class="dim">LV'+n+'</span>',x[4],'Current: '+display(n),'Next: '+display(n+1),'◆'+fmt(price),'data-pcrepeat="'+x[0]+'"',!Number.isFinite(price)||s.pc<price)}
+h+='<div class="section purple">REUSABLE PC BOOSTS</div><div class="dim small">Buy again any time to extend the timer. These are simulated in-game purchases.</div>';
+for(const x of [{id:'btc',name:'BTC Surge',desc:'×1.5 BTC payouts for 10 minutes',cost:12},{id:'speed',name:'Turbo Scan',desc:'×1.5 breach speed for 5 minutes',cost:10}]){let rem=Math.max(0,Math.ceil(((s.pcBoosts[x.id]||0)-now())/1000));h+=entry(x.name,x.desc,'Current: '+(rem?Math.ceil(rem/60)+' min remaining':'inactive'),'Next: Add '+(x.id==='btc'?'10':'5')+' min to timer','◆'+x.cost,'data-pcconsume="'+x.id+'"',s.pc<x.cost)}
+return h;}
+let n=tokens(),eligible=zeroEligible();let h='<div class="section purple">✦ ITEM ASCENSION / PERK TREE</div><div class="purple" style="font-size:19px">✦ '+fmt(s.perkPoints)+' PERK POINTS</div><div class="dim small">Reach Level 9,999 to ascend one item. Each ascension earns PP and +20% item effectiveness. Rank 1/2/3 unique abilities unlock on ascensions 1/3/5. All survive ZERO DAY.</div><div class="section purple">UNIQUE ITEM ABILITIES</div>'+[...H,...U].map(x=>'<div class="ability-card"><strong>'+x[1]+' <span class="purple">✦'+asc(x[0])+'</span></strong><div class="dim">'+abilityDescription(x[0])+'</div><div class="gold">'+abilityNext(x[0])+'</div></div>').join('')+'<div class="section purple">PERMANENT PERK TREE</div>';for(const p of perkDefs){let lv=perkLvl(p[0]),c=perkCost(p[0]),isMax=lv>=p[3];h+=entry(p[1]+' <span class="dim">LV'+lv+'/'+p[3]+'</span>',p[2],'Current: '+(p[0]==='legacy'?lv+'% hosts retained':p[0]==='shadow'?(lv*2)+'% detection reduction':p[0]==='engineer'?(lv*3)+'% hardware power':p[0]==='architect'?(lv*4)+'% host power':(lv*3)+'% BTC bonus'),'Next: '+(isMax?'MAXED':'+'+(p[0]==='legacy'?1:p[0]==='architect'?4:p[0]==='shadow'?2:3)+'%'),'✦'+c,'data-perk="'+p[0]+'"',isMax||s.perkPoints<c)}h+='<div class="section purple">SAVE VAULT · BACKUPS</div><div class="dim small">Export a portable save file, restore an automatic backup, or import progress from another browser. Your current save is automatically backed up before importing.</div><div class="bulk"><button data-export-save>EXPORT SAVE</button><button data-import-save>IMPORT SAVE</button><button data-restore-save>RESTORE BACKUP</button></div><div class="dim small">Automatic local backup every 5 minutes · 3 rotating slots</div><button data-economy-report style="width:100%;margin-top:5px">EXPORT LEVEL 9,999 COST REPORT (CSV)</button>';
+h+='<div class="section purple">ZERO DAY PRESTIGE</div><div class="purple" style="font-size:18px">◆ '+fmt(s.zdt)+' ZDT</div><div class="dim" style="margin:8px 0">Next reset: +◆'+fmt(s.prestiges===0?1:s.prestiges===1?4:Math.min(100,4+2*(s.prestiges-1)))+' · '+fmt(Math.min(100,100*s.zeroSignal/zeroTarget()))+'% signal · '+fmt(Math.max(0,zeroTarget()-s.zeroSignal))+' remaining · '+(s.prestiges?'Tier 8 and ₿10K':'Tier 5 and ₿100')+' earned required. Operations and mastery persist.</div><div class="milestone-track" role="progressbar" aria-label="ZERO DAY signal" aria-valuemin="0" aria-valuemax="100" aria-valuenow="'+Math.min(100,100*s.zeroSignal/zeroTarget()).toFixed(1)+'"><span class="milestone-fill" style="width:'+Math.min(100,100*s.zeroSignal/zeroTarget()).toFixed(1)+'%"></span></div><div class="dim small">Protocol rewards at 10%, 25%, 50%, 75%: PC, +12% BTC and +8% hardware/host power per chapter. On later runs, new target tiers also unlock across the research journey. Signal strengthens with target tier and network power. 1st reset ≈30m; 2nd ≈6h cumulative active gameplay. Offline accrues 25%; 10×/100× speed does not accelerate research.</div><button style="width:100%;margin-bottom:10px" data-prestige '+(!eligible?'disabled':'')+'>EXECUTE ZERO DAY</button>';return h+R.map(r=>{let l=rl(r[0]),p=Math.ceil(r[2]*1.4**l);return entry(r[1]+' <span class="dim">LV'+l+'</span>',r[4],'Current: ×'+fmt(r[3]**l),'Next: ×'+fmt(r[3]**(l+1)),'◆'+fmt(p),'data-research="'+r[0]+'"',s.zdt<p)}).join('')}
+const icon={ram:'<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M6 18v3m4-3v3m4-3v3m4-3v3M7 10h2m2 0h2m2 0h2"/>',vpnad:'<path d="M12 2 20 5v6c0 5-3.5 8-8 11-4.5-3-8-6-8-11V5z"/><path d="m9 12 2 2 4-5"/>',crypto:'<circle cx="12" cy="12" r="9"/><path d="M10 5v14m4-14v14M8 8h6a2 2 0 0 1 0 4H8h7a2 2 0 0 1 0 4H8"/>',energy:'<circle cx="7" cy="7" r="3"/><circle cx="17" cy="7" r="3"/><circle cx="12" cy="17" r="3"/><path d="m9 9 2 5m4-5-2 5M10 7h4"/>'};
+const rails={};for(const a of A){let b=document.createElement('button');b.className='boost';b.dataset.ad=a[0];b.title=a[1]+' — '+a[3];$('rail').append(b);rails[a[0]]=b}
+function drawRail(){for(const a of A){let b=rails[a[0]],sec=Math.max(0,Math.ceil(((s.ads[a[0]]||0)-now())/1000)),label=sec?Math.floor(sec/60)+':'+String(sec%60).padStart(2,'0'):'▶ AD';b.classList.toggle('on',sec>0);b.disabled=sec>0;if(b.dataset.label!==label){b.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="#a8ffc4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">'+icon[a[0]]+'</svg><span class="bubble '+(sec?'on':'')+'">'+label+'</span>';b.dataset.label=label}}}
+const TEN=600000,HOUR=3600000;function quota(t){s.events=s.events.filter(x=>Number.isFinite(x)&&x>t-HOUR&&x<=t);return s.events.filter(x=>x>t-TEN).length<2&&s.events.length<5}
+function nextEligible(t){let a=s.events.slice().sort((x,y)=>x-y),recent=a.filter(x=>x>t-TEN),r=t;if(recent.length>=2)r=Math.max(r,recent[recent.length-2]+TEN+1000);if(a.length>=5)r=Math.max(r,a[a.length-5]+HOUR+1000);return r}
+let floating=null;function removeBubble(){if(floating){floating.remove();floating=null}}
+function placeBubble(){if(!floating)return;let r=root.getBoundingClientRect(),ww=innerWidth,hh=innerHeight,left=Math.max(8,r.left+8),right=Math.min(ww-8,r.right-8),top=Math.max(8,r.top+8),bottom=Math.min(hh-8,r.bottom-8),bw=78,bh=64;if(right-left<bw+10||bottom-top<bh+10){floating.style.display='none';return}floating.style.display='flex';floating.style.left=Math.round(left+(right-left-bw)*Number(floating.dataset.fx||.5))+'px';floating.style.top=Math.round(top+(bottom-top-bh)*Number(floating.dataset.fy||.5))+'px'}
+function spawnBubble(){removeBubble();floating=document.createElement('button');floating.type='button';floating.dataset.fx=String(.06+Math.random()*.88);floating.dataset.fy=String(.06+Math.random()*.88);floating.style.cssText='position:fixed;z-index:9999;width:78px;height:64px;border:2px solid #d7aaff;background:#3c254e;color:#f5dcff;border-radius:23px;box-shadow:0 0 0 3px #25162e,0 0 17px #b37cdb77;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;cursor:pointer;font:800 11px monospace;touch-action:manipulation';floating.innerHTML='<span style="font-size:23px">◆</span><span>+ PC</span>';floating.setAttribute('aria-label','Claim Premium Credits');floating.onclick=()=>{if(s.liveEvent?.type!=='credit'||now()>=s.liveEvent.until){removeBubble();return}let n=2+Math.floor(Math.random()*7);s.pc+=n;s.intel.creditsFound+=n;s.liveEvent=null;removeBubble();log('[CREDIT DROP] +◆'+n+' PC');draw(true);save()};document.body.append(floating);placeBubble()}
+function fireEvent(t){if(!quota(t))return;let type=Math.random()<.5?'credit':'breakthrough';s.events.push(t);s.nextEvent=t+65000+Math.random()*115000;s.liveEvent={type,until:t+(type==='credit'?13000:5000)};if(type==='credit'){spawnBubble();log('[SIGNAL] ◆ CREDIT DROP — TAP THE BUBBLE')}else log('[BREAKTHROUGH] ×5 MANUAL TAPS FOR 5 SECONDS');save()}
+function updateEvents(){let t=now();if(s.liveEvent&&t>=s.liveEvent.until){if(s.liveEvent.type==='credit'){removeBubble();log('[CREDIT DROP] Expired')}else log('[BREAKTHROUGH] Normal power restored');s.liveEvent=null}if(s.liveEvent?.type==='credit'){if(!floating&&!document.hidden)spawnBubble();else placeBubble()}if(!s.liveEvent&&t>=s.nextEvent&&!document.hidden){let r=root.getBoundingClientRect();if(quota(t)){if(r.bottom>100&&r.top<innerHeight-100)fireEvent(t)}else s.nextEvent=nextEligible(t)+1000+Math.random()*14000}}
+let lastConsole='',lastTarget='',lastMission='',lastContract='';function missionText(){let o=Ops.find(x=>!done(x[0])&&s.unlocked>=x[2]);return o?'◈ '+o[1]+' · '+(s.ops[o[0]]||0)+'/'+o[3]+' T'+o[2]+' BREACHES':Ops.every(x=>done(x[0]))?'◈ ECLIPSE CLEARANCE COMPLETE':'◈ CLASSIFIED OPS · UNLOCK HIGHER TIERS'}
+function draw(full){$('btc').textContent='₿ '+fmt(s.btc);$('pc').textContent=fmt(s.pc);$('bps').textContent='₿'+fmt(production())+'/sec · estimated';$('hosts').textContent=fmt(s.hosts);$('power').textContent=fmt(power());$('prestiges').textContent=fmt(s.prestiges);$('time').textContent=duration().toFixed(2)+'s';$('reward').textContent='₿'+fmt(reward(s.target));$('breach').style.width=Math.min(100,s.progress*100)+'%';$('bp').textContent=(100*Math.min(1,s.progress)).toFixed(1)+'%';$('trace').style.width=Math.min(100,s.trace)+'%';$('dp').textContent=s.trace.toFixed(1)+'%';$('tier').textContent='TIER '+s.tier+'/10';$('trait').textContent='◆ '+traitFor(s.tier)[0]+(s.tier===6?' · '+(s.target?.patrol>1?'PATROL ACTIVE':'PATROL QUIET'):'');$('mode').textContent='DIRECTIVE: '+mode()[0];$('status').textContent=(s.eco?'ECO':'ADAPTIVE')+' · '+['LIVE','BALANCED','LOW','MINIMAL'][perf()];$('eco').textContent=s.eco?'ECO ON':'ECO OFF';$('speed').textContent=s.speed+'×';let name=s.target?.name||'SCANNING';if(name!==lastTarget){$('target').textContent=name;lastTarget=name}let logs=s.logs.slice(-4).join('\n');if(logs!==lastConsole||full){$('console').replaceChildren(...s.logs.slice(-4).map(t=>{let d=document.createElement('div');d.textContent=t;return d}));lastConsole=logs}let mission=missionText();if(mission!==lastMission){$('mission').textContent=mission;lastMission=mission}let c=s.contract?'◇ '+s.contract.name+' · '+s.contract.progress+'/'+s.contract.need:'◇ CONTRACT READY · OPEN TARGETS';if(c!==lastContract){$('contract').textContent=c;lastContract=c}let breaking=s.liveEvent?.type==='breakthrough'&&now()<s.liveEvent.until,rare=s.rare&&now()<s.rare.until;$('alert').style.display=breaking||rare?'flex':'none';$('claim').style.display=rare&&!breaking?'block':'none';if(breaking){$('alerttitle').textContent='⚡ BREAKTHROUGH ×5';$('alertdesc').textContent='Manual taps supercharged';$('alerttime').textContent=Math.max(0,(s.liveEvent.until-now())/1000).toFixed(1)+'s'}else if(rare){$('alerttitle').textContent='✦ RARE SIGNAL';$('alertdesc').textContent=s.rare.type==='wallet'?'Exposed wallet cache':'Dormant node cluster';$('alerttime').textContent=Math.max(0,Math.ceil((s.rare.until-now())/1000))+'s'}$('tap').classList.toggle('hot',!!breaking);$('taptext').textContent=breaking?'×5 TAP POWER':'TAP TO HACK';if(full){$('shop').innerHTML=panel();root.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('sel',b.dataset.tab===s.tab));if(labResults&&s.tab==='targets'&&intelView==='dashboard')drawLabGraph()}drawRail()}
+root.addEventListener('click',e=>{let b=e.target.closest('button');if(!b||b.disabled)return;if(b.id==='tap')tap();else if(b.id==='claim')claimRare();else if(b.dataset.ad){let a=A.find(x=>x[0]===b.dataset.ad);if(a&&!on(a[0])){s.ads[a[0]]=now()+a[2]*1000;log('[BOOST] '+a[1]);draw(true)}}else if(b.id==='pcbtn'){s.tab='premium';draw(true)}else if(b.dataset.tab){s.tab=b.dataset.tab;draw(true)}else if(b.hasAttribute('data-export-save')){downloadSave()}else if(b.hasAttribute('data-import-save')){$('savefile').click()}else if(b.hasAttribute('data-restore-save')){restoreBackup()}else if(b.hasAttribute('data-economy-report')){exportEconomyReport()}else if(b.hasAttribute('data-run-lab'))runBalanceLab();else if(b.hasAttribute('data-prestige-lab'))runPrestigeLab();else if(b.dataset.labRange){labGraphWindow=Number(b.dataset.labRange);draw(true)}else if(b.dataset.intel){intelView=b.dataset.intel;draw(true)}else if(b.dataset.bulk){s.bulk=b.dataset.bulk==='max'?'max':Number(b.dataset.bulk);draw(true)}else if(b.dataset.buy)buy(b.dataset.buy);else if(b.dataset.ascend)ascend(b.dataset.ascend);else if(b.dataset.perk)buyPerk(b.dataset.perk);else if(b.dataset.premium)buyPremium(b.dataset.premium);else if(b.dataset.pcrepeat)buyRepeat(b.dataset.pcrepeat);else if(b.dataset.pcconsume)buyConsumable(b.dataset.pcconsume);else if(b.dataset.research)buyResearch(b.dataset.research);else if(b.dataset.grant){s.pc+=Number(b.dataset.grant);log('[DEMO] +◆'+b.dataset.grant);draw(true)}else if(b.dataset.mode){s.directive=b.dataset.mode;log('[DIRECTIVE] '+mode()[0]);draw(true)}else if(b.dataset.contract){if(!s.contract){let c=contractOffers().find(x=>x.id===b.dataset.contract);if(c){let bounty=T[c.tier-1][1]*30*(1+.1*s.contractCycle);s.contract={...c,progress:0,bounty,rewardText:c.pay==='btc'?'₿'+fmt(bounty):c.pay==='pc'?'◆2 PC':'×2 speed / 90s'};log('[CONTRACT] '+c.name+' ACCEPTED');draw(true)}}}else if(b.dataset.tier){s.tier=Number(b.dataset.tier);spawn();log('[TARGET] TIER '+s.tier+' selected');draw(true)}else if(b.hasAttribute('data-prestige'))prestige();else if(b.id==='eco'){s.eco=!s.eco;draw(true)}else if(b.id==='speed'){s.speed=s.speed===1?10:s.speed===10?100:1;draw(true)}else if(b.id==='save'){log(save()?'[SYS] Saved locally':'[SYS] Storage unavailable');draw(true)}});
+const canvas=$('rain'),ctx=canvas.getContext('2d');let w=1,h=1,streams=[],streamClock=0,paintClock=0;function resize(){let r=root.getBoundingClientRect(),d=Math.min(2,devicePixelRatio||1);w=r.width;h=r.height;canvas.width=Math.max(1,Math.ceil(w*d));canvas.height=Math.max(1,Math.ceil(h*d));ctx.setTransform(d,0,0,d,0,0)}resize();if('ResizeObserver'in window)new ResizeObserver(resize).observe(root);
+const reduceMotion=window.matchMedia?window.matchMedia('(prefers-reduced-motion: reduce)'):null;
+function rain(dt){if(reduceMotion?.matches)return;let l=perf(),fps=[12,8,4,2][l];paintClock+=dt;if(paintClock<1/fps)return;let elapsed=paintClock;paintClock=0;ctx.clearRect(0,0,w,h);let density=1+Math.log10(1+Math.max(0,production())*10000),gap=Math.max(.7,5/density),limit=[20,14,8,3][l];streamClock+=elapsed;let count=0;while(streamClock>=gap&&streams.length<limit&&count++<2){streamClock-=gap;streams.push({x:Math.floor(Math.random()*Math.max(1,w/15))*15,y:-20,speed:45+Math.random()*65,len:5+Math.floor(Math.random()*10),seed:Math.random()*1000})}streamClock=Math.min(streamClock,gap);ctx.font='12px monospace';ctx.textBaseline='top';let chars='01ABCDEF#$';for(let i=streams.length-1;i>=0;i--){let v=streams[i];v.y+=v.speed*elapsed;for(let j=0;j<v.len;j++){let y=v.y-j*15;if(y<0||y>h)continue;let z=Math.abs(Math.sin(v.seed+j*21+Math.floor(v.y/28)*13));ctx.fillStyle=z<.025?'rgba(243,187,89,.13)':j===0?'rgba(158,255,180,.2)':'rgba(94,205,118,'+(.12*(1-j/v.len))+')';ctx.fillText(z<.025?'₿':chars[Math.floor(z*chars.length)%chars.length],v.x,y)}if(v.y-v.len*15>h+20)streams.splice(i,1)}}
+window.addEventListener('scroll',placeBubble,{passive:true});window.addEventListener('resize',placeBubble);document.addEventListener('visibilitychange',()=>{if(document.hidden){save();removeBubble();simDebt=0}else{simDebt=0;last=performance.now();offline();if(s.liveEvent?.type==='credit'&&now()<s.liveEvent.until)spawnBubble();draw(true)}});
+spawn();offline();checkAch();backup('startup');log('[BOOT] GHOSTNET v3.3 PROGRESSION FLOW');if(migrated)log('[SYS] Migrated v1.5 save; BTC normalized');log('[SYS] Tier mastery and contracts online');log('[SYS] Bulk purchases ready');log('[SYS] Save Vault / offline safeguards active');notificationsReady=true;draw(true);
+let last=performance.now(),ui=0,shopClock=0,saveClock=0,eventClock=0;setInterval(()=>{let t=performance.now(),dt=Math.min(2,(t-last)/1000);last=t;if(document.hidden)return;s.intel.activeSeconds+=dt;s.zeroRunSeconds+=dt;tick(dt*s.speed);addZeroSignal(dt);rain(dt);if(s.rare&&now()>=s.rare.until){s.rare=null;log('[RARE] Signal expired')}ui+=dt;shopClock+=dt;saveClock+=dt;eventClock+=dt;if(eventClock>=.25){updateEvents();eventClock=0}if(ui>=timing[perf()]){summary(t);registerIntelAwards();renderNotice();draw(false);ui=0}if(shopClock>=2){updateShopPrices();shopClock=0}if(saveClock>=15){save();if(now()-lastBackedUpAt>=300000)backup('automatic');saveClock=0}},100);
+})();
+</script></body></html>
