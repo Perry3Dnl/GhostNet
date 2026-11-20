@@ -57,8 +57,22 @@ body{overflow-anchor:none}
 .shop .milestone-fill{transition:transform .12s linear;transform-origin:left center}
 @media(max-width:380px){.shop .entry[data-shoprow]{height:208px;min-height:208px;max-height:208px}.money{font-size:clamp(19px,6vw,26px)}}
 @media(prefers-reduced-motion:reduce){.target .fill,.shop .milestone-fill{transition:none}}
+
+.intel-controls{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+.intel-controls button{min-width:0;padding:6px 2px;font-size:10px}
+.daily-card{border:1px solid #355940;background:#0d1b12;border-radius:7px;padding:10px;margin:8px 0;display:grid;gap:9px;min-height:88px}
+.daily-card .between{gap:8px;align-items:center;min-width:0}
+.daily-card .between>strong:first-child{flex:1;min-width:0}
+.daily-card .between>strong:last-child,.daily-card .between>span:last-child{flex-shrink:0}
+.daily-card button{justify-self:stretch;min-height:38px}
+.daily-card .track{height:6px;overflow:hidden}
+.daily-week{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:3px}
+.daily-week span{background:#152d1e;padding:4px 0;text-align:center;border-radius:4px;color:#a2bba9;font-size:10px}
+.daily-week span.seen{color:#bfffce;background:#214e31}
+.daily-week small{display:block;font-size:9px;color:#d3a8e6}
+@media(max-width:350px){.daily-card{padding:8px}.intel-controls button{font-size:9px}}
 </style></head><body><main id="game" class="game"><canvas class="rain" id="rain" aria-hidden="true"></canvas>
-<div class="header"><strong class="green" style="font-size:14px">◈ GHOSTNET <span class="dim" style="font-size:9px">v3.6</span></strong><button id="pcbtn" style="background:#30213c;border-color:#76568d;color:#e4c4ff;min-height:31px">◆ <span id="pc">0</span> PC</button></div>
+<div class="header"><strong class="green" style="font-size:14px">◈ GHOSTNET <span class="dim" style="font-size:9px">v3.7</span></strong><button id="pcbtn" style="background:#30213c;border-color:#76568d;color:#e4c4ff;min-height:31px">◆ <span id="pc">0</span> PC</button></div>
 <div class="milestone-alert" id="milestone-alert" role="status" aria-live="polite"><strong id="milestone-title"></strong><small id="milestone-subtitle"></small></div><div class="console" id="console" aria-live="off"></div><div class="alert" id="alert"><div><strong class="gold" id="alerttitle"></strong><div class="dim small" id="alertdesc"></div></div><strong class="gold" id="alerttime"></strong><button id="claim" style="display:none;min-height:31px;background:#4c341c;border-color:#a27d44;color:#ffe4a7">CLAIM</button></div>
 <div class="wallet"><div class="dim" style="font-size:9px;letter-spacing:2px">STOLEN BITCOIN</div><div class="money" id="btc">₿ 0</div><div class="dim" id="bps">₿ 0/sec</div></div><div class="clickzone"><div class="rail" id="rail"></div><button class="server" id="tap" aria-label="Tap to hack"><svg width="59" height="59" viewBox="0 0 100 100" fill="none" stroke="#b5ffcd" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"><rect x="18" y="16" width="64" height="23" rx="4"/><rect x="18" y="47" width="64" height="23" rx="4"/><circle cx="30" cy="28" r="2" fill="#b5ffcd"/><circle cx="30" cy="59" r="2" fill="#b5ffcd"/><path d="M44 28h24M44 59h24"/></svg><span id="taptext">TAP TO HACK</span></button><div class="sideinfo"><span class="green">AUTO</span><div>HACK</div><div id="time" style="margin-top:10px">8.00s</div><div>BREACH</div></div></div>
 <div class="stats"><div class="stat"><strong class="green" id="hosts">0</strong><small>HOSTS</small></div><div class="stat"><strong class="green" id="power">10</strong><small>H/s POWER</small></div><div class="stat"><strong class="purple" id="prestiges">0</strong><small>PRESTIGE</small></div></div>
@@ -77,17 +91,17 @@ const R=[['primer','Ghost Primer',1,1.3,'First ZERO DAY reward: +30% BTC per lev
 const M={balanced:['BALANCED','Standard BTC, hosts and detection.',1,0,1],profit:['PROFIT','×1.6 BTC, fewer hosts, +35% detection.',1.6,-.12,1.35],spread:['PROPAGATE','+16 pts recruitment, −25% BTC, +15% detection.',.75,.16,1.15],ghost:['GHOST','−65% detection, −20% BTC.',.8,0,.35]};
 const Ach=[['first','FIRST CONTACT',x=>x.hosts>=5,'Permanent +10% BTC'],['network','HOME NETWORK',x=>x.hosts>=25,'Permanent ×1.15 speed'],['swarm','BOTNET SWARM',x=>x.hosts>=100,'Permanent ×1.25 host power'],['legion','THE LEGION',x=>x.hosts>=1000,'Permanent ×2 BTC'],['orbit','ORBITAL ACCESS',x=>x.unlocked>=10,'Permanent ×2 speed']];
 const Ops=[['footprint','FIRST FOOTPRINT',1,12,'Establish a public-network foothold.','+3 recruitment percentage points'],['darkledger','DARK LEDGER',3,35,'Recover encrypted institutional ledgers.','Permanent ×1.3 BTC'],['silent','SILENT ENTRY',5,70,'Infiltrate financial systems undetected.','Permanent −25% detection'],['phantom','PHANTOM PROCESSOR',6,120,'Reassemble classified processor blueprints.','Permanent ×1.35 speed'],['skyfall','SKYFALL PROTOCOL',8,100,'Build a covert network across space facilities.','Permanent ×1.5 host power'],['eclipse','PROJECT ECLIPSE',10,250,'Decode the last black-project transmission.','Permanent ×2 BTC + ECLIPSE clearance']];
-const fresh=()=>({zeroSignal:0,zeroRunSeconds:0,zeroStageMilestones:0,backupVersion:34,intel:{taps:0,totalBreaches:0,totalDetections:0,levelsPurchased:0,contracts:0,creditsFound:0,raresClaimed:0,offlineBTC:0,startedAt:now(),activeSeconds:0,unlockedAwards:{}},journal:[],ascensions:{},perkPoints:0,perkSpent:0,perks:{},btc:0,earned:0,lifetime:0,awarded:0,zdt:0,prestiges:0,hosts:0,hpower:0,tier:1,unlocked:1,up:{},research:{},premium:{},pc:0,ads:{},ach:{},ops:{},opsDone:{},tierBreaches:Array(10).fill(0),target:null,progress:0,trace:0,seq:0,breaches:0,failures:0,tab:'shop',speed:1,eco:false,directive:'balanced',bulk:1,pcLevels:{},pcBoosts:{},balanceVersion:17,logs:[],contract:null,contractCycle:0,rare:null,rareLast:0,signalBoost:0,events:[],nextEvent:now()+20000+Math.random()*25000,liveEvent:null,lastSeen:now(),targetFinds:{},targetBounties:0});
+const fresh=()=>({zeroSignal:0,zeroRunSeconds:0,zeroStageMilestones:0,backupVersion:37,daily:null,intel:{taps:0,totalBreaches:0,totalDetections:0,levelsPurchased:0,contracts:0,creditsFound:0,raresClaimed:0,offlineBTC:0,startedAt:now(),activeSeconds:0,unlockedAwards:{}},journal:[],ascensions:{},perkPoints:0,perkSpent:0,perks:{},btc:0,earned:0,lifetime:0,awarded:0,zdt:0,prestiges:0,hosts:0,hpower:0,tier:1,unlocked:1,up:{},research:{},premium:{},pc:0,ads:{},ach:{},ops:{},opsDone:{},tierBreaches:Array(10).fill(0),target:null,progress:0,trace:0,seq:0,breaches:0,failures:0,tab:'shop',speed:1,eco:false,directive:'balanced',bulk:1,pcLevels:{},pcBoosts:{},balanceVersion:17,logs:[],contract:null,contractCycle:0,rare:null,rareLast:0,signalBoost:0,events:[],nextEvent:now()+20000+Math.random()*25000,liveEvent:null,lastSeen:now(),targetFinds:{},targetBounties:0});
 let s=fresh();let migrated=false;
 try{
- const next=localStorage.getItem('ghostnet-boost-v34')||localStorage.getItem('ghostnet-flow-v33')||localStorage.getItem('ghostnet-pacing-v32')||localStorage.getItem('ghostnet-release-v30')||localStorage.getItem('ghostnet-milestones-v23')||localStorage.getItem('ghostnet-intelligence-v22')||localStorage.getItem('ghostnet-ascension-v21')||localStorage.getItem('ghostnet-targets-v20')||localStorage.getItem('ghostnet-reliable-v19')||localStorage.getItem('ghostnet-ascension-v18')||localStorage.getItem('ghostnet-standalone-v16');
- if(next){const j=JSON.parse(next);if((j.version===34||j.version===33||j.version===32||j.version===30||j.version===23||j.version===22||j.version===21||j.version===20||j.version===19||j.version===18||j.version===16)&&j.data)s={...fresh(),...j.data,logs:[],target:null,progress:0,trace:0,tab:'shop'};}
+ const next=localStorage.getItem('ghostnet-daily-v37')||localStorage.getItem('ghostnet-boost-v34')||localStorage.getItem('ghostnet-flow-v33')||localStorage.getItem('ghostnet-pacing-v32')||localStorage.getItem('ghostnet-release-v30')||localStorage.getItem('ghostnet-milestones-v23')||localStorage.getItem('ghostnet-intelligence-v22')||localStorage.getItem('ghostnet-ascension-v21')||localStorage.getItem('ghostnet-targets-v20')||localStorage.getItem('ghostnet-reliable-v19')||localStorage.getItem('ghostnet-ascension-v18')||localStorage.getItem('ghostnet-standalone-v16');
+ if(next){const j=JSON.parse(next);if((j.version===37||j.version===34||j.version===33||j.version===32||j.version===30||j.version===23||j.version===22||j.version===21||j.version===20||j.version===19||j.version===18||j.version===16)&&j.data)s={...fresh(),...j.data,logs:[],target:null,progress:0,trace:0,tab:'shop'};}
  else{
   const legacy=localStorage.getItem('ghostnet-standalone-v15')||localStorage.getItem('ghostnet-deep-v15');
   if(legacy){const j=JSON.parse(legacy);if(j.version===15&&j.data){s={...fresh(),...j.data,logs:[],target:null,progress:0,trace:0,tab:'shop'};migrated=true;}}
  }
 }catch(e){}
-s.intel??={};s.intel={...fresh().intel,...s.intel};s.journal=Array.isArray(s.journal)?s.journal.slice(-32):[];s.pcLevels??={};s.pcBoosts??={};s.ascensions??={};s.perks??={};s.perkPoints??=0;s.perkSpent??=0;s.zeroSignal=Math.max(0,Number(s.zeroSignal)||0);s.zeroRunSeconds=Math.max(0,Number(s.zeroRunSeconds)||0);s.zeroStageMilestones=Math.max(0,Math.min(4,Math.floor(Number(s.zeroStageMilestones)||0)));for(const x of [...H,...U])s.up[x[0]]=Math.max(0,Math.min(9999,Math.floor(Number(s.up[x[0]])||0)));
+s.intel??={};s.intel={...fresh().intel,adActivations:0,...s.intel};s.journal=Array.isArray(s.journal)?s.journal.slice(-32):[];s.pcLevels??={};s.pcBoosts??={};s.ascensions??={};s.perks??={};s.perkPoints??=0;s.perkSpent??=0;s.zeroSignal=Math.max(0,Number(s.zeroSignal)||0);s.zeroRunSeconds=Math.max(0,Number(s.zeroRunSeconds)||0);s.zeroStageMilestones=Math.max(0,Math.min(4,Math.floor(Number(s.zeroStageMilestones)||0)));for(const x of [...H,...U])s.up[x[0]]=Math.max(0,Math.min(9999,Math.floor(Number(s.up[x[0]])||0)));
 // Previous payouts reached billions within minutes. Preserve levels and unlocks,
 // but compress inflated BTC values on first v1.6 migration. The v1.5 save remains untouched.
 if(migrated){
@@ -316,15 +330,90 @@ function tick(dt){
 
 function tap(){s.intel.taps++;let mul=s.liveEvent?.type==='breakthrough'&&now()<s.liveEvent.until?5:1;let p=Math.max(.025,.15/duration())*mul*(s.tier===1?1.25:1)*(1+.12*abilityRank('laptop'))*(1+.08*abilityRank('ddos')),n=0;while(p>0&&n++<100){let remaining=Math.max(0,1-s.progress);if(p<remaining){s.progress+=p;break}p-=remaining;finish(true)}contractProgress('tap',1,s.tier);draw(false)}
 function summary(t){if(pending.n+pending.fail<[1,5,25,100][perf()]&&t-lastSummary<5000)return;if(pending.n)log('[+] '+fmt(pending.n)+' breaches · ₿'+fmt(pending.btc));if(pending.hosts)log('[+] '+fmt(pending.hosts)+' hosts recruited');if(pending.fail)log('[!] '+fmt(pending.fail)+' detections');pending={n:0,btc:0,hosts:0,fail:0};lastSummary=t}
+
+// DAILY OPERATIONS — reward claims and quest state are saved locally.
+// This is an offline prototype, not a server-validated daily reward economy.
+const utcDay=()=>new Date().toISOString().slice(0,10);
+const loginRewards=[3,5,8,10,15,20,30];
+const dailyTotals=()=>({levels:s.intel.levelsPurchased||0,ads:s.intel.adActivations||0,breaches:s.intel.totalBreaches||0,contracts:s.intel.contracts||0,prestiges:s.prestiges||0});
+function dailySync(){
+ const day=utcDay(),prior=s.daily&&typeof s.daily==='object'?s.daily:{};
+ if(prior.day===day&&prior.baseline&&typeof prior.baseline==='object')return false;
+ s.daily={day,baseline:dailyTotals(),claimed:{},offerClaimed:false,prestigeQuest:(s.prestiges||0)>0,loginLast:typeof prior.loginLast==='string'?prior.loginLast:'',loginCount:Math.max(0,Math.min(100000,Math.floor(Number(prior.loginCount)||0)))};
+ return true;
+}
+function dailyQuests(){
+ dailySync();
+ const base=s.daily.baseline,t=dailyTotals();
+ const progress=(key)=>Math.max(0,(t[key]||0)-(Number(base[key])||0));
+ const quest=[
+  {id:'levels',name:'Upgrade any shop item 50 levels',goal:50,value:progress('levels'),pc:3},
+  {id:'ads',name:'Activate 5 simulated ad boosts',goal:5,value:progress('ads'),pc:5},
+  {id:'breaches',name:'Complete 100 successful breaches',goal:100,value:progress('breaches'),pc:4},
+ ];
+ quest.push(s.daily.prestigeQuest?{id:'advanced',name:'Execute 1 ZERO DAY',goal:1,value:progress('prestiges'),pc:10}:{id:'advanced',name:'Complete 3 contracts',goal:3,value:progress('contracts'),pc:6});
+ return quest;
+}
+function claimDailyLogin(){
+ dailySync();if(s.daily.loginLast===s.daily.day)return;
+ const idx=s.daily.loginCount%7,reward=loginRewards[idx];s.pc+=reward;s.daily.loginLast=s.daily.day;s.daily.loginCount++;
+ log('[DAILY] DAY '+(idx+1)+' LOGIN +◆'+reward+' PC');notify('DAILY LOGIN +◆'+reward+' PC','Come back tomorrow for the next reward');save();draw(true);
+}
+function claimDailyQuest(id){
+ const q=dailyQuests().find(q=>q.id===id);if(!q||q.value<q.goal||s.daily.claimed[id])return;
+ s.daily.claimed[id]=true;s.pc+=q.pc;log('[DAILY] '+q.name+' +◆'+q.pc+' PC');notify('QUEST COMPLETE · +◆'+q.pc,'Daily Operations reward');save();draw(true);
+}
+const dailyOffers=[
+ {name:'15-minute BTC Surge',info:'Free ×2.2 BTC for 15 minutes',type:'btc'},
+ {name:'10-minute Turbo Scan',info:'Free ×2 hacking speed for 10 minutes',type:'speed'},
+ {name:'Daily Credit Cache',info:'Free +5 Premium Credits',type:'pc'}
+];
+const dailyOffer=()=>dailyOffers[Math.floor(Date.parse(utcDay()+'T00:00:00Z')/86400000)%dailyOffers.length];
+function claimDailyOffer(){
+ dailySync();if(s.daily.offerClaimed)return;
+ const o=dailyOffer();s.daily.offerClaimed=true;
+ if(o.type==='pc')s.pc+=5;
+ else s.pcBoosts[o.type]=Math.max(now(),s.pcBoosts[o.type]||0)+(o.type==='btc'?900000:600000);
+ log('[DAILY OFFER] '+o.name+' claimed');notify('DAILY OFFER CLAIMED',o.info);save();draw(true);
+}
+const storeOffers=[
+ ['starter','Starter Pack','€1.99','75 PC + exclusive terminal cosmetic · one-time'],
+ ['small','Small Credit Pack','€2.99','100 Premium Credits'],
+ ['medium','Medium Credit Pack','€5.99','250 Premium Credits'],
+ ['large','Large Credit Pack','€11.99','550 Premium Credits'],
+ ['supporter','Supporter Pack','€4.99','Cosmetic theme + permanent supporter badge'],
+ ['adfree','Ad-Free Upgrade','€5.99','Permanent: claim eligible ad boosts without watching ads · normal cooldowns']
+];
+function dailyPanel(){
+ dailySync();let d=s.daily,idx=d.loginCount%7,claimed=d.loginLast===d.day,o=dailyOffer();
+ let h='<div class="section gold">◈ DAILY OPERATIONS · '+d.day+' UTC</div>';
+ h+='<div class="dim small">Daily missions reset at 00:00 UTC. Missed days never erase login progression. Rewards are granted locally and are not verified by a server.</div>';
+ h+='<div class="daily-card"><div class="between"><strong class="gold">DAILY LOGIN · DAY '+(claimed?((d.loginCount-1)%7+1):(idx+1))+'/7</strong><span class="purple">◆'+(claimed?loginRewards[(d.loginCount-1)%7]:loginRewards[idx])+' PC</span></div><div class="daily-week">'+loginRewards.map((n,i)=>'<span class="'+(i<(d.loginCount%7)||(claimed&&i===(d.loginCount-1)%7)?'seen':'')+'">'+(i+1)+'<small>◆'+n+'</small></span>').join('')+'</div><button data-daily-login '+(claimed?'disabled':'')+'>'+(claimed?'CLAIMED TODAY':'CLAIM LOGIN REWARD')+'</button></div>';
+ h+='<div class="section gold">DAILY QUESTS</div><div class="dim small">Three regular tasks plus an optional advanced task. You can finish all of these without paying real money.</div>';
+ for(const q of dailyQuests()){
+  const complete=d.claimed[q.id],current=Math.min(q.goal,q.value),pct=100*current/q.goal;
+  h+='<div class="daily-card"><div class="between"><strong>'+q.name+'</strong><span class="purple">◆'+q.pc+'</span></div><div class="track"><div class="fill" style="width:'+pct+'%;background:#78dda1"></div></div><div class="between"><span class="dim small">'+current+'/'+q.goal+'</span><button data-daily-quest="'+q.id+'" '+(complete||current<q.goal?'disabled':'')+'>'+(complete?'CLAIMED':current>=q.goal?'CLAIM':'IN PROGRESS')+'</button></div></div>';
+ }
+ h+='<div class="section gold">LIMITED DAILY FREE OFFER</div><div class="daily-card"><div class="between"><strong>'+o.name+'</strong><span class="gold">FREE</span></div><div class="dim small">'+o.info+'</div><button data-daily-offer '+(d.offerClaimed?'disabled':'')+'>'+(d.offerClaimed?'CLAIMED TODAY':'CLAIM FREE BONUS')+'</button></div>';
+ return h;
+}
+function premiumStorePanel(){
+ let h='<div class="section purple">◈ PREMIUM STORE · FUTURE REAL-MONEY PRODUCTS</div><div class="dim small">PRICE PREVIEW ONLY. Payments are disabled. No funds are charged, no credits or entitlements are granted, and purchase restoration is not yet available. Real purchases will require verified payments and server-side balances.</div>';
+ for(const [id,name,price,contents] of storeOffers){
+  h+='<div class="daily-card"><div class="between"><strong>'+name+'</strong><strong class="purple">'+price+'</strong></div><div class="dim small">'+contents+'</div><button data-store-preview="'+id+'">NOT AVAILABLE YET</button></div>';
+ }
+ return h;
+}
+
 function buy(id){let e=H.find(x=>x[0]===id),u=U.find(x=>x[0]===id);if(!e&&!u)return;let base=e?e[2]:u[2],g=e?1.15:u[3],q=quantity(base,g,lv(id)),total=sumCost(base,g,lv(id),q);if(!q||!Number.isFinite(total)||total>s.btc+1e-12)return;s.btc=Math.max(0,s.btc-total);let was=lv(id);s.up[id]=was+q;s.intel.levelsPurchased+=q;log('[UPGRADE] '+(e?e[1]:u[1])+' +'+q+' LV');milestoneReached(id,was,s.up[id]);draw(true)}
 function repeatPrice(x){return Math.ceil(x[2]*Math.pow(x[3],pl(x[0])))}
 function buyRepeat(id){let x=RP.find(x=>x[0]===id);if(!x)return;let price=repeatPrice(x);if(!Number.isFinite(price)||s.pc<price)return;s.pc-=price;s.pcLevels[id]=pl(id)+1;log('[PC UPGRADE] '+x[1]+' LV'+pl(id));draw(true);save()}
 function buyConsumable(id){let options={btc:{name:'BTC Surge / 10 min',price:12,duration:600000},speed:{name:'Turbo Scan / 5 min',price:10,duration:300000}};let x=options[id];if(!x||s.pc<x.price)return;s.pc-=x.price;s.pcBoosts[id]=Math.max(now(),s.pcBoosts[id]||0)+x.duration;log('[PC BOOST] '+x.name+' activated');draw(true);save()}
 function buyPremium(id){let p=P.find(x=>x[0]===id);if(!p||has(id)||s.pc<p[2])return;s.pc-=p[2];s.premium[id]=true;log('[PREMIUM] '+p[1]);draw(true)}
 function buyResearch(id){let r=R.find(x=>x[0]===id);if(!r)return;let p=Math.ceil(r[2]*1.4**rl(id));if(!Number.isFinite(p)||s.zdt<p)return;s.zdt-=p;s.research[id]=rl(id)+1;log('[ZERO DAY] '+r[1]+' LV'+rl(id));draw(true)}
-const SAVE_KEY='ghostnet-boost-v34',BACKUP_PREFIX='ghostnet-v34-backup-',BACKUP_INDEX='ghostnet-v34-backup-index';
+const SAVE_KEY='ghostnet-daily-v37',BACKUP_PREFIX='ghostnet-v37-backup-',BACKUP_INDEX='ghostnet-v37-backup-index';
 let lastBackedUpAt=0;
-function snapshot(){let data={...s,lastSeen:now()};return JSON.stringify({game:'GHOSTNET',version:34,exportedAt:new Date().toISOString(),data})}
+function snapshot(){let data={...s,lastSeen:now()};return JSON.stringify({game:'GHOSTNET',version:37,exportedAt:new Date().toISOString(),data})}
 function backup(label='automatic'){
  try{
   const i=(Number(localStorage.getItem(BACKUP_INDEX))||0)%3;
@@ -342,19 +431,19 @@ function exportEconomyReport(){
   rows.push([x[1],type,cost(x[2],g,0),sumCost(x[2],g,0,99),sumCost(x[2],g,0,999),sumCost(x[2],g,0,9999)].join(','));
  }
  let blob=new Blob([rows.join('\n')],{type:'text/csv'}),url=URL.createObjectURL(blob);
- let a=document.createElement('a');a.href=url;a.download='ghostnet-v34-ascension-economy.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
+ let a=document.createElement('a');a.href=url;a.download='ghostnet-v37-ascension-economy.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
  log('[ECONOMY] Exported full ascension cost report');draw(true);
 }
 function downloadSave(){
  save();let text=snapshot(),blob=new Blob([text],{type:'application/json'}),url=URL.createObjectURL(blob);
- let a=document.createElement('a');a.href=url;a.download='ghostnet-v34-save-'+new Date().toISOString().slice(0,10)+'.json';
+ let a=document.createElement('a');a.href=url;a.download='ghostnet-v37-save-'+new Date().toISOString().slice(0,10)+'.json';
  document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),2000);
  log('[SAVE VAULT] Exported portable save');draw(true);
 }
 function validateSave(raw){
  if(typeof raw!=='string'||raw.length>4e6)throw Error('Save file too large');
  const o=JSON.parse(raw),d=o&&o.data;
- if(!d||typeof d!=='object'||Array.isArray(d)||![15,16,18,19,20,21,22,23,30,32,33,34].includes(o.version))throw Error('Unrecognized GHOSTNET save format');
+ if(!d||typeof d!=='object'||Array.isArray(d)||![15,16,18,19,20,21,22,23,30,32,33,34,37].includes(o.version))throw Error('Unrecognized GHOSTNET save format');
  const numeric=['btc','earned','lifetime','hosts','hpower','prestiges','pc','zdt','perkPoints','perkSpent','tier','unlocked','zeroSignal','zeroRunSeconds'];
  for(const k of numeric){if(d[k]!==undefined&&(!Number.isFinite(d[k])||d[k]<0))throw Error('Invalid '+k)}
  if((d.tier||1)>10||(d.unlocked||1)>10)throw Error('Invalid target tier');
@@ -370,6 +459,7 @@ function validateSave(raw){
  if(d.intel&&(!d.intel.unlockedAwards||typeof d.intel.unlockedAwards!=='object'))throw Error('Invalid achievement archive');
  if(d.intel)for(const key of ['totalBreaches','totalDetections','taps','levelsPurchased']){if(d.intel[key]!==undefined&&(!Number.isSafeInteger(d.intel[key])||d.intel[key]<0))throw Error('Invalid career statistic '+key)}
  if(d.journal&&(!Array.isArray(d.journal)||d.journal.length>1000||d.journal.some(j=>!j||typeof j!=='object'||typeof j.text!=='string'||j.text.length>500||!Number.isFinite(j.at))))throw Error('Invalid network journal');
+ if(d.daily){if(typeof d.daily!=='object'||Array.isArray(d.daily)||typeof d.daily.day!=='string'||d.daily.day.length>20||!d.daily.baseline||typeof d.daily.baseline!=='object'||typeof d.daily.claimed!=='object'||!Number.isSafeInteger(d.daily.loginCount)||d.daily.loginCount<0)throw Error('Invalid daily operation data')}
  if(d.events&&(!Array.isArray(d.events)||d.events.length>10000||d.events.some(v=>!Number.isFinite(v))))throw Error('Invalid event history');
  return {version:o.version,data:d};
 }
@@ -388,6 +478,7 @@ function adoptSave(raw){
  merged.speed=[1,10,100].includes(d.speed)?d.speed:1;
  merged.tierBreaches=Array.isArray(d.tierBreaches)?d.tierBreaches.slice(0,10).map(v=>Number.isFinite(v)&&v>=0?v:0):Array(10).fill(0);
  while(merged.tierBreaches.length<10)merged.tierBreaches.push(0);
+ merged.daily=d.daily&&typeof d.daily==='object'?{...d.daily}:null;
  merged.lastSeen=Number.isFinite(d.lastSeen)?Math.min(now(),d.lastSeen):now();
  backup('before import');s=merged;
  spawn();offline();checkAch();
@@ -418,7 +509,7 @@ $('savefile').addEventListener('change',async e=>{
 });
 
 function offline(){let elapsed=(now()-s.lastSeen)/1000;if(elapsed>=60){let seconds=Math.min(14400,elapsed);addZeroSignal(seconds,true);s.zeroRunSeconds+=seconds*.25;let btc=Math.max(0,production())*seconds*(.2+.05*abilityRank('garage'));if(Number.isFinite(btc)&&btc>0){s.btc+=btc;s.earned+=btc;s.lifetime+=btc;s.intel.offlineBTC+=btc;log('[OFFLINE] +₿'+fmt(btc));unlock()}}s.lastSeen=now()}
-function prestige(){let n=tokens();if(!n||!zeroEligible())return;if(!confirm('EXECUTE ZERO DAY? Gain ◆'+fmt(n)+' ZDT, resetting BTC, normal upgrades, targets, and hosts. Classified operations and mastery remain.'))return;let o=s;s=fresh();Object.assign(s,{intel:o.intel,journal:o.journal,ascensions:o.ascensions,perkPoints:o.perkPoints,perkSpent:o.perkSpent,perks:o.perks,pcLevels:o.pcLevels,pcBoosts:o.pcBoosts,balanceVersion:17,lifetime:o.lifetime,awarded:o.awarded+n,zdt:o.zdt+n,prestiges:o.prestiges+1,research:o.research,premium:o.premium,pc:o.pc,ads:o.ads,ach:o.ach,ops:o.ops,opsDone:o.opsDone,tierBreaches:o.tierBreaches,targetFinds:o.targetFinds,targetBounties:o.targetBounties,events:o.events,nextEvent:o.nextEvent,liveEvent:o.liveEvent,speed:o.speed,eco:o.eco,bulk:o.bulk,directive:o.directive,tab:'prestige'});s.hosts=Math.floor(o.hosts*.01*perkLvl('legacy'));s.hpower=o.hpower*.01*perkLvl('legacy');spawn();log('[ZERO DAY] +◆'+fmt(n));save();draw(true)}
+function prestige(){let n=tokens();if(!n||!zeroEligible())return;if(!confirm('EXECUTE ZERO DAY? Gain ◆'+fmt(n)+' ZDT, resetting BTC, normal upgrades, targets, and hosts. Classified operations and mastery remain.'))return;let o=s;s=fresh();Object.assign(s,{daily:o.daily,intel:o.intel,journal:o.journal,ascensions:o.ascensions,perkPoints:o.perkPoints,perkSpent:o.perkSpent,perks:o.perks,pcLevels:o.pcLevels,pcBoosts:o.pcBoosts,balanceVersion:17,lifetime:o.lifetime,awarded:o.awarded+n,zdt:o.zdt+n,prestiges:o.prestiges+1,research:o.research,premium:o.premium,pc:o.pc,ads:o.ads,ach:o.ach,ops:o.ops,opsDone:o.opsDone,tierBreaches:o.tierBreaches,targetFinds:o.targetFinds,targetBounties:o.targetBounties,events:o.events,nextEvent:o.nextEvent,liveEvent:o.liveEvent,speed:o.speed,eco:o.eco,bulk:o.bulk,directive:o.directive,tab:'prestige'});s.hosts=Math.floor(o.hosts*.01*perkLvl('legacy'));s.hpower=o.hpower*.01*perkLvl('legacy');spawn();log('[ZERO DAY] +◆'+fmt(n));save();draw(true)}
 function effect(id,n){if(id==='ddos')return'×'+fmt(1+Math.min(10,1.2*Math.log1p(n)))+' attack power';if(id==='vps')return'−'+(100*(1-1/(1+.2*n))).toFixed(1)+'% detection';if(id==='worm')return'+'+n*4+' percentage points recruitment';if(id==='host')return'×'+fmt(1+Math.min(6,Math.log1p(n)))+' host power';if(id==='stealth')return'−'+(100*(1-.8**n)).toFixed(1)+'% detection';if(id==='wallet')return'×'+fmt(walletMultiplier(n))+' BTC';return''}
 function entry(name,desc,current,next,label,attr,disabled){return'<div class="entry"><div class="details"><div class="name">'+name+'</div><div class="desc">'+desc+'</div><div class="current">'+current+'</div><div class="next">'+next+'</div></div><button class="buy" '+attr+' '+(disabled?'disabled':'')+'>'+label+'</button></div>'}
 function fmtBTC(n){
@@ -709,8 +800,8 @@ function panel(){if(s.tab==='shop'){
  h+='<div class="section">BOTNET & SOFTWARE</div>';
  return h+U.map(x=>shopRow(x[0])).join('');
 }
-if(s.tab==='targets'){let h='<div class="intel-controls"><button data-intel="operations" class="'+(intelView==='operations'?'sel':'')+'">OPERATIONS</button><button data-intel="dashboard" class="'+(intelView==='dashboard'?'sel':'')+'">◈ INTEL</button></div>';if(intelView==='dashboard')return h+intelPanel();h+='<div class="section gold">◇ NETWORK CONTRACTS</div><div class="dim small">Select a contract to earn BTC, Premium Credits or temporary hacking speed.</div>';if(s.contract){let c=s.contract;h+='<div class="contract"><strong class="gold">'+c.name+'</strong><div class="dim small">'+c.desc+'</div><div class="track"><div class="fill" style="width:'+100*c.progress/c.need+'%;background:#f2ce76"></div></div><div class="between small"><span>'+c.progress+'/'+c.need+'</span><span class="gold">'+c.rewardText+'</span></div></div>'}else{for(const c of contractOffers()){let label=c.pay==='btc'?'₿'+fmt(T[c.tier-1][1]*30*(1+.1*s.contractCycle)):c.pay==='pc'?'◆2 PC':'×2 speed / 90s';h+='<div class="contract"><strong class="gold">'+c.name+'</strong><div class="dim small" style="margin:5px 0">'+c.desc+'</div><div class="between"><span class="green small">'+label+'</span><button data-contract="'+c.id+'">ACCEPT</button></div></div>'}}h+='<div class="section">OPERATION DIRECTIVE</div><div class="choices">';for(const [id,m] of Object.entries(M))h+='<button data-mode="'+id+'" class="'+(s.directive===id?'sel':'')+'"><strong>'+m[0]+'</strong><div class="dim" style="font-size:9px;margin-top:5px">'+m[1]+'</div></button>';h+='</div><div class="section">◈ CLASSIFIED OPERATIONS · '+Ops.filter(o=>done(o[0])).length+'/6</div>';for(const o of Ops){let n=Math.min(o[3],s.ops[o[0]]||0),complete=done(o[0]),locked=s.unlocked<o[2]&&!complete;h+='<div class="op '+(complete?'done':'')+' '+(locked?'muted':'')+'"><div class="between"><strong class="'+(complete?'green':'gold')+'">'+(complete?'✓ ':'◈ ')+o[1]+'</strong><span>T'+o[2]+'</span></div><div class="dim small">'+(locked?'Unlock Tier '+o[2]:o[4])+'</div><div class="track"><div class="fill" style="width:'+100*n/o[3]+'%;background:#d8b76c"></div></div><div class="between small"><span>'+n+'/'+o[3]+' breaches</span><span class="green">'+(complete?'COMPLETE':'ACTIVE')+'</span></div><div class="green small">'+o[5]+'</div></div>'}h+='<div class="section">★ TIER MASTERY · '+totalStars()+'/30</div><div class="dim small">Earn stars at 10, 50, and 200 breaches per tier. Each star permanently adds +4% BTC.</div><div class="section">TARGET TIERS · DISTINCT TRAITS</div><div class="dim small">Each target tier has a unique mechanic. Selecting it keeps this tab open.</div>';h+=T.map((t,i)=>{let count=s.tierBreaches[i]||0,st=stars(i+1);return entry('T'+(i+1)+' '+t[0]+' <span class="gold">'+'★'.repeat(st)+'☆'.repeat(3-st)+'</span>','Base payout ₿'+fmt(t[1]),'Mastery: '+fmt(count)+' breaches'+(st<3?' · next star at '+starsNeeded[st]:' · COMPLETE'),'SPECIAL: '+traitLine(i+1),i+1>s.unlocked?'LOCKED':i+1===s.tier?'ACTIVE':'SELECT','data-tier="'+(i+1)+'"',i+1>s.unlocked||i+1===s.tier)}).join('');h+='<div class="section">NETWORK MILESTONES</div>';h+=Ach.map(([id,name,,bonus])=>'<div class="op"><strong class="'+(s.ach[id]?'green':'dim')+'">'+(s.ach[id]?'✓ ':'○ ')+name+'</strong><div class="gold small">'+bonus+'</div></div>').join('');return h}
-if(s.tab==='premium'){let h='<div class="notice">SIMULATED PREMIUM STORE · No real purchases or payments. Credit Drops and contracts earn PC. Repeatable upgrades and reusable boosts keep credits useful.</div><div class="purple" style="font-size:18px">◆ '+fmt(s.pc)+' PC</div><div style="display:flex;gap:5px;flex-wrap:wrap;margin:9px 0"><button data-grant="100">+100 PC</button><button data-grant="500">+500 PC</button><button data-grant="2000">+2000 PC</button></div>';h+='<div class="section purple">PERMANENT ONE-TIME UNLOCKS</div>';
+if(s.tab==='targets'){let h='<div class="intel-controls"><button data-intel="operations" class="'+(intelView==='operations'?'sel':'')+'">OPERATIONS</button><button data-intel="dashboard" class="'+(intelView==='dashboard'?'sel':'')+'">◈ INTEL</button><button data-intel="daily" class="'+(intelView==='daily'?'sel':'')+'">✦ DAILY</button></div>';if(intelView==='dashboard')return h+intelPanel();if(intelView==='daily')return h+dailyPanel();h+='<div class="section gold">◇ NETWORK CONTRACTS</div><div class="dim small">Select a contract to earn BTC, Premium Credits or temporary hacking speed.</div>';if(s.contract){let c=s.contract;h+='<div class="contract"><strong class="gold">'+c.name+'</strong><div class="dim small">'+c.desc+'</div><div class="track"><div class="fill" style="width:'+100*c.progress/c.need+'%;background:#f2ce76"></div></div><div class="between small"><span>'+c.progress+'/'+c.need+'</span><span class="gold">'+c.rewardText+'</span></div></div>'}else{for(const c of contractOffers()){let label=c.pay==='btc'?'₿'+fmt(T[c.tier-1][1]*30*(1+.1*s.contractCycle)):c.pay==='pc'?'◆2 PC':'×2 speed / 90s';h+='<div class="contract"><strong class="gold">'+c.name+'</strong><div class="dim small" style="margin:5px 0">'+c.desc+'</div><div class="between"><span class="green small">'+label+'</span><button data-contract="'+c.id+'">ACCEPT</button></div></div>'}}h+='<div class="section">OPERATION DIRECTIVE</div><div class="choices">';for(const [id,m] of Object.entries(M))h+='<button data-mode="'+id+'" class="'+(s.directive===id?'sel':'')+'"><strong>'+m[0]+'</strong><div class="dim" style="font-size:9px;margin-top:5px">'+m[1]+'</div></button>';h+='</div><div class="section">◈ CLASSIFIED OPERATIONS · '+Ops.filter(o=>done(o[0])).length+'/6</div>';for(const o of Ops){let n=Math.min(o[3],s.ops[o[0]]||0),complete=done(o[0]),locked=s.unlocked<o[2]&&!complete;h+='<div class="op '+(complete?'done':'')+' '+(locked?'muted':'')+'"><div class="between"><strong class="'+(complete?'green':'gold')+'">'+(complete?'✓ ':'◈ ')+o[1]+'</strong><span>T'+o[2]+'</span></div><div class="dim small">'+(locked?'Unlock Tier '+o[2]:o[4])+'</div><div class="track"><div class="fill" style="width:'+100*n/o[3]+'%;background:#d8b76c"></div></div><div class="between small"><span>'+n+'/'+o[3]+' breaches</span><span class="green">'+(complete?'COMPLETE':'ACTIVE')+'</span></div><div class="green small">'+o[5]+'</div></div>'}h+='<div class="section">★ TIER MASTERY · '+totalStars()+'/30</div><div class="dim small">Earn stars at 10, 50, and 200 breaches per tier. Each star permanently adds +4% BTC.</div><div class="section">TARGET TIERS · DISTINCT TRAITS</div><div class="dim small">Each target tier has a unique mechanic. Selecting it keeps this tab open.</div>';h+=T.map((t,i)=>{let count=s.tierBreaches[i]||0,st=stars(i+1);return entry('T'+(i+1)+' '+t[0]+' <span class="gold">'+'★'.repeat(st)+'☆'.repeat(3-st)+'</span>','Base payout ₿'+fmt(t[1]),'Mastery: '+fmt(count)+' breaches'+(st<3?' · next star at '+starsNeeded[st]:' · COMPLETE'),'SPECIAL: '+traitLine(i+1),i+1>s.unlocked?'LOCKED':i+1===s.tier?'ACTIVE':'SELECT','data-tier="'+(i+1)+'"',i+1>s.unlocked||i+1===s.tier)}).join('');h+='<div class="section">NETWORK MILESTONES</div>';h+=Ach.map(([id,name,,bonus])=>'<div class="op"><strong class="'+(s.ach[id]?'green':'dim')+'">'+(s.ach[id]?'✓ ':'○ ')+name+'</strong><div class="gold small">'+bonus+'</div></div>').join('');return h}
+if(s.tab==='premium'){let h='<div class="notice">Premium Credits are earnable in-game. Real-money transactions are not enabled.</div><div class="purple" style="font-size:18px">◆ '+fmt(s.pc)+' PC</div>'+premiumStorePanel();h+='<div class="section purple">PERMANENT ONE-TIME UNLOCKS</div>';
 h+=P.map(p=>entry(p[1],p[3],has(p[0])?'Current: ACTIVE':'Current: Not owned',has(p[0])?'Permanent unlock active':'Next: '+p[3],has(p[0])?'OWNED':'◆'+p[2],'data-premium="'+p[0]+'"',has(p[0])||s.pc<p[2])).join('');
 h+='<div class="section purple">REPEATABLE PC UPGRADES</div><div class="dim small">Buy as many levels as you want. Costs grow independently and permanent benefits have diminishing returns.</div>';
 for(const x of RP){let n=pl(x[0]),price=repeatPrice(x),display=k=>x[0]==='license'?'×'+fmt(1+.08*Math.log1p(k))+' BTC':x[0]==='compression'?'×'+fmt(1+.12*Math.log1p(k))+' host power':'−'+(100*(1-1/(1+.1*Math.log1p(k)))).toFixed(1)+'% detection';
@@ -745,12 +836,12 @@ root.addEventListener('click',e=>{let b=e.target.closest('button');if(!b||b.disa
   const displacement=current.getBoundingClientRect().top-tappedY;
   if(Math.abs(displacement)>.5)window.scrollBy({top:displacement,behavior:'instant'});
  };
- try{if(b.id==='tap')tap();else if(b.id==='claim')claimRare();else if(b.dataset.ad){let a=A.find(x=>x[0]===b.dataset.ad);if(a&&!on(a[0])){s.ads[a[0]]=now()+a[2]*1000;log('[BOOST] '+a[1]);draw(true)}}else if(b.id==='pcbtn'){s.tab='premium';draw(true)}else if(b.dataset.tab){s.tab=b.dataset.tab;draw(true)}else if(b.hasAttribute('data-export-save')){downloadSave()}else if(b.hasAttribute('data-import-save')){$('savefile').click()}else if(b.hasAttribute('data-restore-save')){restoreBackup()}else if(b.hasAttribute('data-economy-report')){exportEconomyReport()}else if(b.hasAttribute('data-run-lab'))runBalanceLab();else if(b.hasAttribute('data-prestige-lab'))runPrestigeLab();else if(b.hasAttribute('data-boost-lab'))runBoostLab();else if(b.dataset.labRange){labGraphWindow=Number(b.dataset.labRange);draw(true)}else if(b.dataset.intel){intelView=b.dataset.intel;draw(true)}else if(b.dataset.bulk){s.bulk=b.dataset.bulk==='max'?'max':Number(b.dataset.bulk);draw(true)}else if(b.dataset.buy)buy(b.dataset.buy);else if(b.dataset.ascend)ascend(b.dataset.ascend);else if(b.dataset.perk)buyPerk(b.dataset.perk);else if(b.dataset.premium)buyPremium(b.dataset.premium);else if(b.dataset.pcrepeat)buyRepeat(b.dataset.pcrepeat);else if(b.dataset.pcconsume)buyConsumable(b.dataset.pcconsume);else if(b.dataset.research)buyResearch(b.dataset.research);else if(b.dataset.grant){s.pc+=Number(b.dataset.grant);log('[DEMO] +◆'+b.dataset.grant);draw(true)}else if(b.dataset.mode){s.directive=b.dataset.mode;log('[DIRECTIVE] '+mode()[0]);draw(true)}else if(b.dataset.contract){if(!s.contract){let c=contractOffers().find(x=>x.id===b.dataset.contract);if(c){let bounty=T[c.tier-1][1]*30*(1+.1*s.contractCycle);s.contract={...c,progress:0,bounty,rewardText:c.pay==='btc'?'₿'+fmt(bounty):c.pay==='pc'?'◆2 PC':'×2 speed / 90s'};log('[CONTRACT] '+c.name+' ACCEPTED');draw(true)}}}else if(b.dataset.tier){s.tier=Number(b.dataset.tier);spawn();log('[TARGET] TIER '+s.tier+' selected');draw(true)}else if(b.hasAttribute('data-prestige'))prestige();else if(b.id==='eco'){s.eco=!s.eco;draw(true)}else if(b.id==='speed'){s.speed=s.speed===1?10:s.speed===10?100:1;draw(true)}else if(b.id==='save'){log(save()?'[SYS] Saved locally':'[SYS] Storage unavailable');draw(true)} } finally {restoreClickedRow()} });
+ try{if(b.id==='tap')tap();else if(b.id==='claim')claimRare();else if(b.dataset.ad){let a=A.find(x=>x[0]===b.dataset.ad);if(a&&!on(a[0])){s.ads[a[0]]=now()+a[2]*1000;s.intel.adActivations=(s.intel.adActivations||0)+1;log('[BOOST] '+a[1]);draw(true)}}else if(b.id==='pcbtn'){s.tab='premium';draw(true)}else if(b.dataset.tab){s.tab=b.dataset.tab;draw(true)}else if(b.hasAttribute('data-export-save')){downloadSave()}else if(b.hasAttribute('data-import-save')){$('savefile').click()}else if(b.hasAttribute('data-restore-save')){restoreBackup()}else if(b.hasAttribute('data-economy-report')){exportEconomyReport()}else if(b.hasAttribute('data-run-lab'))runBalanceLab();else if(b.hasAttribute('data-prestige-lab'))runPrestigeLab();else if(b.hasAttribute('data-boost-lab'))runBoostLab();else if(b.dataset.labRange){labGraphWindow=Number(b.dataset.labRange);draw(true)}else if(b.dataset.intel){intelView=b.dataset.intel;dailySync();draw(true)}else if(b.hasAttribute('data-daily-login'))claimDailyLogin();else if(b.dataset.dailyQuest)claimDailyQuest(b.dataset.dailyQuest);else if(b.hasAttribute('data-daily-offer'))claimDailyOffer();else if(b.dataset.storePreview){alert('This product is a pricing preview. Real-money purchases are not yet available. No payment was attempted.')}else if(b.dataset.bulk){s.bulk=b.dataset.bulk==='max'?'max':Number(b.dataset.bulk);draw(true)}else if(b.dataset.buy)buy(b.dataset.buy);else if(b.dataset.ascend)ascend(b.dataset.ascend);else if(b.dataset.perk)buyPerk(b.dataset.perk);else if(b.dataset.premium)buyPremium(b.dataset.premium);else if(b.dataset.pcrepeat)buyRepeat(b.dataset.pcrepeat);else if(b.dataset.pcconsume)buyConsumable(b.dataset.pcconsume);else if(b.dataset.research)buyResearch(b.dataset.research);else if(b.dataset.grant){s.pc+=Number(b.dataset.grant);log('[DEMO] +◆'+b.dataset.grant);draw(true)}else if(b.dataset.mode){s.directive=b.dataset.mode;log('[DIRECTIVE] '+mode()[0]);draw(true)}else if(b.dataset.contract){if(!s.contract){let c=contractOffers().find(x=>x.id===b.dataset.contract);if(c){let bounty=T[c.tier-1][1]*30*(1+.1*s.contractCycle);s.contract={...c,progress:0,bounty,rewardText:c.pay==='btc'?'₿'+fmt(bounty):c.pay==='pc'?'◆2 PC':'×2 speed / 90s'};log('[CONTRACT] '+c.name+' ACCEPTED');draw(true)}}}else if(b.dataset.tier){s.tier=Number(b.dataset.tier);spawn();log('[TARGET] TIER '+s.tier+' selected');draw(true)}else if(b.hasAttribute('data-prestige'))prestige();else if(b.id==='eco'){s.eco=!s.eco;draw(true)}else if(b.id==='speed'){s.speed=s.speed===1?10:s.speed===10?100:1;draw(true)}else if(b.id==='save'){log(save()?'[SYS] Saved locally':'[SYS] Storage unavailable');draw(true)} } finally {restoreClickedRow()} });
 const canvas=$('rain'),ctx=canvas.getContext('2d');let w=1,h=1,streams=[],streamClock=0,paintClock=0;function resize(){let r=root.getBoundingClientRect(),d=Math.min(2,devicePixelRatio||1);w=r.width;h=r.height;canvas.width=Math.max(1,Math.ceil(w*d));canvas.height=Math.max(1,Math.ceil(h*d));ctx.setTransform(d,0,0,d,0,0)}resize();if('ResizeObserver'in window)new ResizeObserver(resize).observe(root);
 const reduceMotion=window.matchMedia?window.matchMedia('(prefers-reduced-motion: reduce)'):null;
 function rain(dt){if(reduceMotion?.matches)return;let l=perf(),fps=[12,8,4,2][l];paintClock+=dt;if(paintClock<1/fps)return;let elapsed=paintClock;paintClock=0;ctx.clearRect(0,0,w,h);let density=1+Math.log10(1+Math.max(0,production())*10000),gap=Math.max(.7,5/density),limit=[20,14,8,3][l];streamClock+=elapsed;let count=0;while(streamClock>=gap&&streams.length<limit&&count++<2){streamClock-=gap;streams.push({x:Math.floor(Math.random()*Math.max(1,w/15))*15,y:-20,speed:45+Math.random()*65,len:5+Math.floor(Math.random()*10),seed:Math.random()*1000})}streamClock=Math.min(streamClock,gap);ctx.font='12px monospace';ctx.textBaseline='top';let chars='01ABCDEF#$';for(let i=streams.length-1;i>=0;i--){let v=streams[i];v.y+=v.speed*elapsed;for(let j=0;j<v.len;j++){let y=v.y-j*15;if(y<0||y>h)continue;let z=Math.abs(Math.sin(v.seed+j*21+Math.floor(v.y/28)*13));ctx.fillStyle=z<.025?'rgba(243,187,89,.13)':j===0?'rgba(158,255,180,.2)':'rgba(94,205,118,'+(.12*(1-j/v.len))+')';ctx.fillText(z<.025?'₿':chars[Math.floor(z*chars.length)%chars.length],v.x,y)}if(v.y-v.len*15>h+20)streams.splice(i,1)}}
 window.addEventListener('scroll',placeBubble,{passive:true});window.addEventListener('resize',placeBubble);document.addEventListener('visibilitychange',()=>{if(document.hidden){save();removeBubble();simDebt=0}else{simDebt=0;last=performance.now();offline();if(s.liveEvent?.type==='credit'&&now()<s.liveEvent.until)spawnBubble();draw(true)}});
-spawn();offline();checkAch();backup('startup');log('[BOOT] GHOSTNET v3.6 STABLE TOUCH UI');if(migrated)log('[SYS] Migrated v1.5 save; BTC normalized');log('[SYS] Tier mastery and contracts online');log('[SYS] Bulk purchases ready');log('[SYS] Save Vault / offline safeguards active');notificationsReady=true;draw(true);
+spawn();offline();checkAch();dailySync();backup('startup');log('[BOOT] GHOSTNET v3.7 DAILY OPERATIONS');if(migrated)log('[SYS] Migrated v1.5 save; BTC normalized');log('[SYS] Tier mastery and contracts online');log('[SYS] Bulk purchases ready');log('[SYS] Save Vault / offline safeguards active');notificationsReady=true;draw(true);
 // Paint bars separately from the economic simulation. Project only the fraction
 // of the current 100ms simulation step; no logic or rewards are changed.
 let lastBarFrame=performance.now(),lastSimulationFrame=lastBarFrame;
@@ -769,6 +860,6 @@ function smoothBars(t){
  requestAnimationFrame(smoothBars);
 }
 requestAnimationFrame(smoothBars);
-let last=performance.now(),ui=0,shopClock=0,saveClock=0,eventClock=0;setInterval(()=>{let t=performance.now(),dt=Math.min(2,(t-last)/1000);last=t;if(document.hidden)return;s.intel.activeSeconds+=dt;s.zeroRunSeconds+=dt;tick(dt*s.speed);lastSimulationFrame=t;addZeroSignal(dt);rain(dt);if(s.rare&&now()>=s.rare.until){s.rare=null;log('[RARE] Signal expired')}ui+=dt;shopClock+=dt;saveClock+=dt;eventClock+=dt;if(eventClock>=.25){updateEvents();eventClock=0}if(ui>=timing[perf()]){summary(t);registerIntelAwards();renderNotice();draw(false);ui=0}if(shopClock>=2){updateShopPrices();shopClock=0}if(saveClock>=15){save();if(now()-lastBackedUpAt>=300000)backup('automatic');saveClock=0}},100);
+let last=performance.now(),ui=0,shopClock=0,saveClock=0,eventClock=0;setInterval(()=>{let t=performance.now(),dt=Math.min(2,(t-last)/1000);last=t;if(document.hidden)return;if(dailySync()&&s.tab==='targets'&&intelView==='daily')draw(true);s.intel.activeSeconds+=dt;s.zeroRunSeconds+=dt;tick(dt*s.speed);lastSimulationFrame=t;addZeroSignal(dt);rain(dt);if(s.rare&&now()>=s.rare.until){s.rare=null;log('[RARE] Signal expired')}ui+=dt;shopClock+=dt;saveClock+=dt;eventClock+=dt;if(eventClock>=.25){updateEvents();eventClock=0}if(ui>=timing[perf()]){summary(t);registerIntelAwards();renderNotice();draw(false);ui=0}if(shopClock>=2){updateShopPrices();shopClock=0}if(saveClock>=15){save();if(now()-lastBackedUpAt>=300000)backup('automatic');saveClock=0}},100);
 })();
 </script></body></html>
