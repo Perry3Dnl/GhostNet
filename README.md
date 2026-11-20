@@ -8,6 +8,8 @@ A fictional, offline-playable incremental game for mobile browsers. Hack simulat
 
 ## Current experimental build
 
+**v3.6 — Stable Touch UI** is the latest version: [index.html](index.html) / [archived v3.6](releases/ghostnet_v3_6_stable_touch_ui.html). It fixes layout jumps and animates bars independently of the simulation.
+
 - **v3.4 — Boost Balance:** [index.html](index.html) / [release snapshot](releases/ghostnet_v3_4_boost_balance.html).
 - **v3.3 — Progression Balance:** [release snapshot](releases/ghostnet_v3_3_progression_balance.html).
 - **v3.2 — Prestige Pacing:** [release snapshot](releases/ghostnet_v3_2_prestige_pacing.html).
