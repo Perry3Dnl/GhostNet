@@ -321,7 +321,7 @@ function downloadSave(){
 function validateSave(raw){
  if(typeof raw!=='string'||raw.length>4e6)throw Error('Save file too large');
  const o=JSON.parse(raw),d=o&&o.data;
- if(!d||typeof d!=='object'||Array.isArray(d)||![15,16,18,19,20,21,22,23,30,32,33].includes(o.version))throw Error('Unrecognized GHOSTNET save format');
+ if(!d||typeof d!=='object'||Array.isArray(d)||![15,16,18,19,20,21,22,23,30,32,33,34].includes(o.version))throw Error('Unrecognized GHOSTNET save format');
  const numeric=['btc','earned','lifetime','hosts','hpower','prestiges','pc','zdt','perkPoints','perkSpent','tier','unlocked','zeroSignal','zeroRunSeconds'];
  for(const k of numeric){if(d[k]!==undefined&&(!Number.isFinite(d[k])||d[k]<0))throw Error('Invalid '+k)}
  if((d.tier||1)>10||(d.unlocked||1)>10)throw Error('Invalid target tier');
