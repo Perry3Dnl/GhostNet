@@ -1,0 +1,11 @@
+stage,strategy,simulated_hours_to_reset,shop_purchases,max_item_level,longest_purchase_gap_minutes,final_target_tier
+first,No purchases,0.52,0,0,31.1,5
+second,No purchases,6.38,0,0,383.0,10
+first,Overclocked Laptop,0.50,3234,3234,0.1,5
+second,Overclocked Laptop,6.36,9999,9999,108.7,10
+first,Wallet Extraction,0.51,1753,1753,5.8,5
+second,Wallet Extraction,6.36,9507,9507,4.7,10
+first,Worm Propagation,0.51,1420,1420,4.7,5
+second,Worm Propagation,6.36,8641,8641,3.8,10
+first,Frankenstein Mainframe,0.52,13,13,14.8,5
+second,Frankenstein Mainframe,6.37,2559,2559,13.2,10
