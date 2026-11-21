@@ -1,0 +1,11 @@
+{
+  "appId": "nl.perry3d.ghostnet",
+  "appName": "GHOSTNET",
+  "webDir": "www",
+  "server": {
+    "androidScheme": "https"
+  },
+  "android": {
+    "allowMixedContent": false
+  }
+}
