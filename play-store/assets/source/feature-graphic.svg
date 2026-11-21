@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="500" viewBox="0 0 1024 500">
+<defs><linearGradient id="night" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#061b11"/><stop offset=".62" stop-color="#031008"/><stop offset="1" stop-color="#0b2618"/></linearGradient><linearGradient id="mint" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#d1ffe0"/><stop offset="1" stop-color="#25f08a"/></linearGradient></defs>
+<rect width="1024" height="500" fill="url(#night)"/>
+<g stroke="#17874c" stroke-width="3" opacity=".4" fill="none"><path d="M-30 115H205L270 180H355M1024 375H818L755 315H688M-15 350H156L228 425H345M1030 135H810L750 70H630"/><path d="M80 0V68H168M944 0V65H866M82 500V435H166M948 500V431H855"/></g>
+<g opacity=".25" stroke="#29c56f" stroke-width="1"><path d="M0 96H1024M0 196H1024M0 296H1024M0 396H1024M104 0V500M304 0V500M504 0V500M704 0V500M904 0V500"/></g>
+<circle cx="246" cy="246" r="160" fill="#03160a" stroke="#40e98b" stroke-width="7"/><circle cx="246" cy="246" r="146" fill="none" stroke="#8ef6b2" stroke-width="2" stroke-dasharray="17 9"/>
+<path d="M131 269L174 167Q246 109 319 167L363 269V322L339 308L322 353L282 328L246 370L208 328L169 353L151 307L131 322Z" fill="#082b18" stroke="#6bffac" stroke-width="12" stroke-linejoin="round"/>
+<path d="M176 241L224 260L209 286L173 268ZM317 241L270 260L284 286L320 268Z" fill="#afffca"/>
+<g fill="#2dc776"><rect x="193" y="308" width="107" height="15" rx="4"/><rect x="202" y="332" width="90" height="12" rx="3"/></g>
+<text x="451" y="242" fill="url(#mint)" font-family="DejaVu Sans,Arial,sans-serif" font-weight="900" font-size="78" letter-spacing="-3">GHOSTNET</text>
+<text x="457" y="299" fill="#a9d6b5" font-family="DejaVu Sans Mono,monospace" font-size="25" letter-spacing="8">HACKER CLICKER</text>
+<rect x="454" y="333" width="484" height="5" fill="#3fd987"/><text x="457" y="382" fill="#6d9f7f" font-family="DejaVu Sans Mono,monospace" font-size="18">TAP • UPGRADE • ASCEND • ZERO DAY</text>
+</svg>
