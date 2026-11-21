@@ -1,3 +1,7 @@
+## Android development (v3.8)
+
+The offline-first Android app source lives in [`android-app/`](android-app/). It includes a Capacitor 8 build setup, optional Play Games account/cloud-save bridge, Google test rewarded ads, and Android Studio initialization scripts. Guest gameplay works locally. **Purchases are deliberately disabled** until products and fulfillment can be configured and tested; an APK/AAB has not been compiled in this development environment. GitHub Pages remains unused.
+
 # GHOSTNET — Incremental Hacker Clicker
 
 ## v3.7 — Daily Operations (current development build)
