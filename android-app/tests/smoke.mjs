@@ -1,0 +1,16 @@
+import fs from 'node:fs';
+import assert from 'node:assert/strict';
+const html=fs.readFileSync('www/index.html','utf8');
+assert.match(html,/function androidPanel\(/);
+assert.match(html,/function androidUpload\(/);
+assert.match(html,/function androidDownload\(/);
+assert.match(html,/function androidAd\(/);
+assert.match(html,/validateSave\(r.payload\)/);
+assert.match(html,/onAndroid\)\{androidAd\(b.dataset.ad\)/);
+assert.match(html,/guest|GUEST/);
+assert.match(html,/NOT AVAILABLE YET/);
+const scripts=[...html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)];
+assert(scripts.length>0);
+const vm=await import('node:vm');
+for(const [,script] of scripts)new vm.Script(script);
+console.log('PASS: Android UI integrations, save guard, no checkout, JS syntax');
