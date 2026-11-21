@@ -44,3 +44,9 @@ The current source repository intentionally contains **the generation template**
 Game saves are local. Cloud snapshots are an optional backup for connected users. Free gameplay is not protected against cheating. For purchased consumable PC, Google does not automatically provide a durable, restorable balance after consumption: a client-only implementation needs a clear policy for lost saves/refunds, and must implement idempotent grants and purchase recovery before enabling checkout.
 
 This repository is for development/storage; do **not** enable GitHub Pages.
+
+## Play Store release preparation
+
+After the debug APK works, follow [the Google Play release checklist](../play-store/RELEASE_CHECKLIST.md). The [manual signed-AAB workflow](../.github/workflows/android-release-aab.yml) requires four signing secrets and creates an AAB artifact; it does not upload the bundle. Store listing copy, pricing catalog, policy review draft, artwork and screenshots guidance are under [play-store/](../play-store/).
+
+Capacitor 8 targets Android API 36 by default. Check the generated `android/variables.gradle` and release AAB metadata before submission. Google Play Games, AdMob and purchases remain unconfigured until service IDs and genuine test flows are added. No real purchases can be processed by the current client.
