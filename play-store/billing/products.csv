@@ -1,0 +1,7 @@
+product_id,product_type,price_eur_nl,credits,entitlement,repeatable,checkout_enabled
+ghostnet_starter,non_consumable,1.99,75,starter_cosmetic,false,false
+ghostnet_pc_100,consumable,2.99,100,,true,false
+ghostnet_pc_250,consumable,5.99,250,,true,false
+ghostnet_pc_550,consumable,11.99,550,,true,false
+ghostnet_supporter,non_consumable,4.99,0,supporter_theme_badge,false,false
+ghostnet_ad_free,non_consumable,5.99,0,ad_free_boost_claims,false,false
