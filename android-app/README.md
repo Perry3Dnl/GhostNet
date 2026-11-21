@@ -2,6 +2,15 @@
 
 A single-player Android wrapper for GHOSTNET v3.7. It preserves the four-tab UI, shop, single-player simulation and existing browser storage save format. No server or public website is required.
 
+
+## Build a debug APK in GitHub Actions
+
+The repository includes [**Build Android Debug APK**](../.github/workflows/android-debug.yml). It runs automatically when the Android source or workflow changes on `main`, and can also be started manually from **GitHub → Actions → Build Android Debug APK → Run workflow**.
+
+The runner installs Node.js 22, Java 21 and Android SDK, generates the Capacitor Android project, runs `npm test`, then compiles `assembleDebug`. When successful, download the **ghostnet-android-debug-…** artifact from the workflow run, extract the ZIP and install the contained `.apk` on a test Android device.
+
+This is a **debug APK for testing, not a Google Play release AAB**. Play Games cloud saves, AdMob, and Billing still require Play Console/service configuration and real-device validation. Checkout remains disabled. The workflow does not deploy a website or publish to Google Play.
+
 ## Build locally
 
 Requirements: Node 22+, Android Studio 2025.2.1+, Android SDK, JDK 21 (see Capacitor v8 docs), and network access to npm/Gradle the first time.
