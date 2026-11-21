@@ -62,3 +62,16 @@ These modeled premium scenarios show the upper potential of PC upgrades, **not**
 Open bugs, balance observations and future versions should be tracked as GitHub issues and commits. The current build is a balance-test build, not a certified release.
 
 This is a fictional simulation. It does not interact with real networks.
+
+## Google Play release preparation (November 2026)
+
+The **[Play Store preparation package](play-store/RELEASE_CHECKLIST.md)** contains draft English listing copy, a six-product billing catalog, privacy and Data safety worksheets, original SVG artwork, screenshot instructions, and internal testing notes.
+
+- [Google Play listing draft](play-store/listing/en-US.md)
+- [Artwork source and generator](play-store/assets/README.md)
+- [Billing catalog](play-store/billing/product-catalog.md)
+- [Privacy draft — requires publisher review](play-store/legal/PRIVACY_POLICY_DRAFT.md)
+- [Manual signed-AAB workflow](.github/workflows/android-release-aab.yml)
+- [Automated store PNG asset workflow](.github/workflows/play-store-assets.yml)
+
+**There is no automatic Play Store publishing or GitHub Pages deployment.** Checkout is still disabled. The user must supply Google Console configuration, public legal contact and privacy URL, release keystore secrets, and real Android screenshots.
