@@ -637,198 +637,6 @@ function formatDuration(seconds){
  if(days<365)return fmt(days)+' days';
  return fmt((seconds/31557600).toFixed(1))+' years';
 }
-/* v3.1 BALANCE LAB — runs a separate, expected-value model. Never touches saved gameplay. */
-let labResults=null,labBusy=false,labGraphWindow=3600,labVerification=null;
-const labHorizons=[3600,86400,2592000,31536000];
-function simulateOneItem(testId){
- const pick=H.find(x=>x[0]===testId)||U.find(x=>x[0]===testId),id=pick?.[0]||null;
- const base=pick?.[2]||0,g=pick?(H.includes(pick)?1.15:pick[3]):1;
- const points=[{time:0,earned:0}], snapshots=[],milestones=[1e3,1e6,1e9,1e11],milestoneTime=[null,null,null,null];
- const tmax=labHorizons.at(-1), state={time:0,btc:0,earned:0,level:0,hosts:0,hpower:0,tier:1,breaches:Array(10).fill(0),firstAscension:null,tier10At:null};
- let tries=0,nextSample=1;
- while(state.time<tmax&&tries++<130000){
-  const level=state.level,tt=T[state.tier-1];
-  // Spend only on the selected upgrade. All other shop items remain Level 0.
-  if(pick&&level<MAX_LEVEL){
-   let lo=0,hi=MAX_LEVEL-level;
-   while(lo<hi){let m=Math.ceil((lo+hi)/2);if(sumCost(base,g,level,m)<=state.btc+1e-11)lo=m;else hi=m-1}
-   if(lo){state.btc=Math.max(0,state.btc-sumCost(base,g,level,lo));state.level+=lo;
-    if(state.level===MAX_LEVEL&&state.firstAscension===null)state.firstAscension=state.time;continue}
-  }
-  const itemLv=key=>key===id?state.level:0;
-  const stars=state.breaches.reduce((a,n)=>a+(n>=10)+(n>=50)+(n>=200),0);
-  const opDone=threshold=>state.breaches[threshold-1]>=({1:12,3:35,5:70,6:120,8:100,10:250}[threshold]||Infinity);
-  const a=(state.hosts>=5?1.1:1)*(state.hosts>=1000?1.4:1);
-  const eq=10+H.reduce((v,h)=>v+h[3]*itemLv(h[0]),0);
-  const hostMult=1+Math.min(6,Math.log1p(itemLv('host')));
-  const pow=Math.max(10,(eq+state.hpower*hostMult*(state.hosts>=100?1.25:1)*(opDone(8)?1.5:1))*(1+Math.min(10,1.2*Math.log1p(itemLv('ddos')))));
-  const speed=(1+Math.log10(1+pow/100))*(state.hosts>=25?1.15:1)*(state.tier===10?2:1)*(opDone(6)?1.35:1);
-  const duration=Math.max(.45,(state.tier===7?9.6:8)/Math.max(1,speed));
-  const wallet=walletMultiplier(itemLv('wallet'));
-  const baseReward=tt[1]*.82*(state.tier===4?1.2:1)*wallet*a*(opDone(3)?1.2:1)*(opDone(10)?1.5:1)*(1+.015*stars);
-  const randomBonus=state.tier===3?.08:state.tier===5?.18:0;
-  const perBreach=baseReward*(1+randomBonus);
-  const r=2.2*tt[3]*(state.tier===4?1.25:1)*Math.pow(.8,itemLv('stealth'))/(1+.2*itemLv('vps'))*(opDone(5)?.75:1);
-  // If detection reaches 100 first, no BTC or recruitment is produced by that breach.
-  const success=duration*r<100;
-  const recruit=success?Math.min(.95,tt[2]+.04*itemLv('worm')+(state.tier===2?.05:0)+(opDone(1)?.03:0)):0;
-  const nextCost=pick&&state.level<MAX_LEVEL?cost(base,g,state.level):Infinity;
-  const neededPurchase=success&&perBreach>0&&Number.isFinite(nextCost)?Math.max(1,Math.ceil((nextCost-state.btc)/(perBreach*(1-1e-12)))):Infinity;
-  const thresholds=[0,.004,.025,.15,1,6,40,250,1600,10000];
-  const tierTarget=state.tier<10?thresholds[state.tier]:Infinity;
-  const neededTier=success&&perBreach>0?Math.max(1,Math.ceil((tierTarget-state.earned)/perBreach)):Infinity;
-  const nextHorizon=labHorizons.find(v=>v>state.time+1e-9)||tmax;
-  const neededTime=Math.max(1,Math.ceil((nextHorizon-state.time)/duration));
-  // An adaptive expected-value step limits host-power error while allowing millions of breaches per step.
-  const boundGrowth=Math.max(12,Math.floor((state.hosts+100)*.06/Math.max(.005,recruit)));
-  let n=Math.min(1500000,neededPurchase,neededTier,neededTime,boundGrowth);
-  // Also stop at the first three tier-mastery stars and classified-operation unlocks.
-  const k=state.breaches[state.tier-1];
-  for(const edge of [10,12,35,50,70,100,120,200,250])if(edge>k){n=Math.min(n,Math.ceil(edge-k));break}
-  n=Math.max(1,Math.floor(n));
-  const dt=Math.min(n*duration,nextHorizon-state.time,tmax-state.time),breaches=dt/duration;
-  state.time+=dt;
-  if(success){
-   const credited=breaches*perBreach;
-   state.btc+=credited;state.earned+=credited;
-   let joined=breaches*recruit;
-   if(state.tier===9)joined+=breaches*.15;
-   state.hosts+=joined;
-   state.hpower+=joined*tt[4]*(state.tier===7?1.35:1);
-   state.breaches[state.tier-1]+=breaches;
-  }
-  if(state.tier<10&&state.earned+1e-11>=thresholds[state.tier]){state.tier++;if(state.tier===10)state.tier10At=state.time;}
-  for(let i=0;i<milestones.length;i++)if(milestoneTime[i]===null&&state.earned>=milestones[i])milestoneTime[i]=state.time;
-  if(state.time>=nextSample || state.time>=tmax || state.time>=nextHorizon-1e-7){points.push({time:state.time,earned:state.earned});nextSample=Math.max(state.time*1.22,state.time+60)}
-  if(state.time>=nextHorizon-1e-7){snapshots.push({time:state.time,earned:state.earned,level:state.level,tier:state.tier});}
-  if(!success)break;
- }
- return {id:id||'none',name:pick?pick[1]:'No shop purchases',state,points,snapshots,milestoneTime,iterations:tries,limitReached:tries>=130000};
-}
-function labSelfCheck(rows){
- let issues=[];
- if(rows.length!==17)issues.push('Unexpected number of strategies');
- for(const r of rows){
-  if(!Number.isFinite(r.state.earned)||r.state.earned<0||r.state.level<0||r.state.level>9999)issues.push('Invalid '+r.name);
-  if(r.snapshots.length!==4)issues.push('Missing timeline '+r.name);
-  if(r.points.some((v,i)=>i>0&&(v.earned+1e-7<r.points[i-1].earned||v.time<r.points[i-1].time)))issues.push('Nonmonotonic '+r.name);
-  if(r.limitReached)issues.push('Iteration limit '+r.name);
- }
- for(const x of [...H,...U]){
-  const g=H.includes(x)?1.15:x[3],b=x[2];
-  for(const n of [0,1,10,99,999,9998]){
-   let one=cost(b,g,n),sum=sumCost(b,g,n,1);
-   if(!(one>=0&&Number.isFinite(one))||Math.abs(one-sum)>Math.max(1e-9,one*1e-8))issues.push('Pricing '+x[0]+' '+n);
-  }
- }
- return issues;
-}
-function labTime(sec){if(sec===null)return '—';if(sec<3600)return (sec/60).toFixed(1)+'m';if(sec<86400)return (sec/3600).toFixed(1)+'h';if(sec<31536000)return (sec/86400).toFixed(1)+'d';return (sec/31536000).toFixed(1)+'y'}
-function runBalanceLab(){if(labBusy)return;labBusy=true;const status=$('lab-status');if(status)status.textContent='Running 17 one-year strategies…';
- setTimeout(()=>{
-  let start=performance.now();try{labResults=[simulateOneItem(null),...[...H,...U].map(x=>simulateOneItem(x[0]))];labVerification=labSelfCheck(labResults);
-   const failed=labResults.filter(x=>x.limitReached).length;
-   log('[BALANCE LAB] '+labResults.length+' strategies · '+Math.round(performance.now()-start)+'ms'+(labVerification.length?' · '+labVerification.length+' warnings':' · checks OK') );
-  }catch(e){labResults=null;log('[BALANCE LAB] '+e.message)}
-  labBusy=false;draw(true);drawLabGraph();
- },0);
-}
-/* v3.2 PRESTIGE PACING TEST - expected-value automation, from fresh runs.
-   Simulates time to readiness at stage 1 and stage 2 for several shop strategies.
-   Uses the same tier/host/power/reward/price approximations as the full balance lab. */
-let prestigeLabResults=null;
-function simulatePrestigePacing(id,stage,boostMode='free'){
- const item=H.find(x=>x[0]===id)||U.find(x=>x[0]===id);
- const g=item?(H.includes(item)?1.15:item[3]):1, base=item?.[2]||0;
- const z={time:0,btc:0,earned:0,level:0,hosts:0,hpower:0,tier:1,signal:0,breaches:Array(10).fill(0)};
- const points=[{time:0,signal:0,earned:0}];let k=0,purchases=0,buyTimes=[],tierTimes=[{tier:1,time:0}],lastPurchase=0,maxGap=0;
- const goal=zeroThreshold(stage),maxSec=stage===0?7200:43200;
- while(z.time<maxSec&&z.signal<goal&&k++<150000){
-  const t=T[z.tier-1];
-  // Three reproducible play styles. Ad and premium windows are aligned to
-  // modeled gameplay time, not wall-clock timers or random advertising SDKs.
-  // Free: no optional boosts. Ads: all four 5m / 3m ads every 15 minutes.
-  // PC: permanent CPU/Magnet plus BTC surge 10m/20m and speed 5m/20m;
-  // assume an external supply of Premium Credits (not earned in this model).
-  const cycle=boostMode==='ads'?900:1200;
-  const phase=z.time%cycle;
-  const adOn=boostMode==='ads'&&phase<300;
-  const energyOn=boostMode==='ads'&&phase<180;
-  const pcBtc=boostMode==='pc'&&phase<600;
-  const pcSpeed=boostMode==='pc'&&phase<300;
-  const bonusTime=Math.min(
-   boostMode==='ads'?(phase<180?180-phase:phase<300?300-phase:cycle-phase):
-   boostMode==='pc'?(phase<300?300-phase:phase<600?600-phase:cycle-phase):maxSec-z.time,
-   maxSec-z.time);
-
-  if(item&&z.level<MAX_LEVEL){let lo=0,hi=MAX_LEVEL-z.level;
-   while(lo<hi){let m=Math.ceil((lo+hi)/2);if(sumCost(base,g,z.level,m)<=z.btc+1e-11)lo=m;else hi=m-1}
-   if(lo){z.btc=Math.max(0,z.btc-sumCost(base,g,z.level,lo));z.level+=lo;purchases+=lo;buyTimes.push(z.time);maxGap=Math.max(maxGap,z.time-lastPurchase);lastPurchase=z.time;continue}
-  }
-  const level=key=>id===key?z.level:0;
-  const eq=10+H.reduce((a,h)=>a+h[3]*level(h[0]),0);
-  const pow=Math.max(10,(eq+z.hpower*(1+Math.min(6,Math.log1p(level('host')))))*(1+Math.min(10,1.2*Math.log1p(level('ddos')))))*(1+.08*[.10,.25,.50,.75].filter(edge=>z.signal>=goal*edge).length);
-  const d=Math.max(.45,(z.tier===7?9.6:8)/((1+Math.log10(1+pow/100))*(z.hosts>=25?1.15:1)*(z.tier===10?2:1)*(adOn?2:1)*(boostMode==='pc'?2:1)*(pcSpeed?2:1)));
-  const stars=z.breaches.reduce((a,n)=>a+(n>=10)+(n>=50)+(n>=200),0);
-  const wallet=walletMultiplier(level('wallet'));
-  const chapterCount=[.10,.25,.50,.75].filter(edge=>z.signal>=goal*edge).length;
-  const payout=t[1]*.82*(1+.12*chapterCount)*(z.tier===4?1.2:1)*wallet*(z.hosts>=5?1.1:1)*(z.hosts>=1000?1.4:1)*(1+.015*stars)*(z.tier===5?1.18:z.tier===3?1.08:1)*(stage?1.3:1)*(adOn?3:1)*(boostMode==='pc'?2:1)*(pcBtc?2.2:1);
-  const recruit=Math.min(.95,t[2]*(energyOn?3:1)+.04*level('worm')+(z.tier===2?.05:0));
-  const r=2.2*t[3]*(z.tier===4?1.25:1)*Math.pow(.8,level('stealth'))/(1+.2*level('vps'))*(adOn?.5:1);
-  if(d*r>=100)break;
-  const nextPrice=item&&z.level<MAX_LEVEL?cost(base,g,z.level):Infinity;
-  const buyN=Number.isFinite(nextPrice)?Math.max(1,Math.ceil((nextPrice-z.btc)/(payout*(1-1e-12)))):Infinity;
-  const unlocks=[0,.004,.025,.15,1,6,40,250,1600,10000];
-  const tierN=z.tier<10&&chapterTierReady(z.tier+1,z.signal,stage)?Math.max(1,Math.ceil((unlocks[z.tier]-z.earned)/payout)):Infinity;
-  const sigRate=signalRate(z.tier,pow);
-  const signalN=Math.max(1,Math.ceil((goal-z.signal)/(d*sigRate)));
-  let n=Math.min(250000,buyN,tierN,signalN,Math.ceil((maxSec-z.time)/d),Math.max(1,Math.floor(bonusTime/d)),Math.max(12,Math.floor((z.hosts+100)*.06/Math.max(.005,recruit))));
-  n=Math.max(1,Math.floor(n));let dt=Math.min(n*d,maxSec-z.time);let breaches=dt/d;
-  z.time+=dt;z.signal+=dt*sigRate;z.earned+=breaches*payout;z.btc+=breaches*payout;
-  z.hosts+=breaches*recruit;z.hpower+=breaches*recruit*t[4]*(z.tier===7?1.35:1);z.breaches[z.tier-1]+=breaches;
-  if(z.tier<10&&z.earned>=unlocks[z.tier]-1e-10&&chapterTierReady(z.tier+1,z.signal,stage)){z.tier++;tierTimes.push({tier:z.tier,time:z.time});}
-  if(points.length<2500&&(z.time-points.at(-1).time>=30||z.signal>=goal||dt>=bonusTime-1e-7))points.push({time:z.time,signal:z.signal,earned:z.earned});
- }
- return {boostMode,id:id||'none',stage:stage+1,name:item?item[1]:'No purchases',time:z.signal>=goal&&z.tier>=(stage?8:5)&&z.earned>=(stage?10000:100)?z.time:null,signal:z.signal,tier:z.tier,earned:z.earned,points,iterations:k,purchases,buyTimes,tierTimes,maxGap:Math.max(maxGap,z.time-lastPurchase),maxLevel:z.level};
-}
-function runPrestigeLab(){prestigeLabResults=[];for(const id of [null,'laptop','wallet','worm','mainframe'])for(let stage=0;stage<2;stage++)prestigeLabResults.push(simulatePrestigePacing(id,stage));draw(true)}
-let boostLabResults=null;
-function runBoostLab(){boostLabResults=[];for(const id of [null,'laptop','wallet','worm','mainframe'])for(let stage=0;stage<2;stage++)for(const mode of ['free','ads','pc'])boostLabResults.push(simulatePrestigePacing(id,stage,mode));draw(true)}
-function boostLabPanel(){let h='<div class="section gold">◈ BOOST COMPARISON · FREE / ADS / PC</div><div class="dim small">Accelerated expected-value scenarios: ad buttons reactivated every 15 min; PC scenario assumes permanent CPU + Magnet and 10/5 min credit boosts used every 20 min. Credits are a modeled allowance, not a real-money purchase. Baseline economy pays 18% less BTC. No save changes.</div><button data-boost-lab style="margin:8px 0">▶ RUN BOOST COMPARISON</button>';if(!boostLabResults)return h;h+='<table style="width:100%;font-size:10px"><tr><th align="left">STRATEGY</th><th>FREE BTC</th><th>ADS ×</th><th>PC ×</th></tr>';for(const id of ['none','laptop','wallet','worm','mainframe']){const qs=boostLabResults.filter(q=>q.stage===2&&q.id===id),a=qs.find(q=>q.boostMode==='free'),b=qs.find(q=>q.boostMode==='ads'),c=qs.find(q=>q.boostMode==='pc');if(!a||!b||!c)continue;h+='<tr><td>'+a.name+'</td><td align="right">'+fmt(a.earned)+'</td><td align="right">'+(b.earned/Math.max(.001,a.earned)).toFixed(1)+'×</td><td align="right">'+(c.earned/Math.max(.001,a.earned)).toFixed(1)+'×</td></tr>'}return h+'</table>';}
-
-function prestigeLabPanel(){
- let h='<div class="section gold">◆ ZERO DAY PACING TEST</div><div class="dim small">Fast expected-value simulation of staged target chapters, revised item prices and the prestige research curve. Runs five automated buying strategies from zero for each prestige stage, assuming the first 1-ZDT Ghost Primer research upgrade is bought before the second run. Random bonuses are averaged; no manual taps, paid boosts or offline accrual. Signal earns at real-time speed, regardless of hacking-speed setting. Saved gameplay is unaffected.</div><div style="margin:8px 0"><button data-prestige-lab>▶ TEST 30m / 6h TARGETS</button></div>';
- if(!prestigeLabResults)return h;
- h+='<table style="width:100%;font-size:10px;border-collapse:collapse"><thead><tr><th style="text-align:left">STRATEGY</th><th>FIRST ZERO DAY</th><th>SECOND ZERO DAY</th></tr></thead><tbody>';
- for(let i=0;i<prestigeLabResults.length;i+=2){let a=prestigeLabResults[i],b=prestigeLabResults[i+1];h+='<tr style="border-top:1px solid #243f30"><td style="padding:6px 0">'+a.name+'</td><td style="text-align:right">'+labTime(a.time)+'</td><td style="text-align:right">'+labTime(b.time)+'</td></tr>'}
- h+='</tbody></table><div class="dim small">Purchases and target-tier unlocks are tracked as gameplay activity. Model estimates exclude clicking, random events, offline income and optional Premium boosts.</div>';h+='<div class="section gold">◈ 2ND RUN ACTIVITY CHECK</div><table style="width:100%;font-size:10px"><tr><th align="left">STRATEGY</th><th>PURCHASED LEVELS</th><th>LONGEST PURCHASE GAP</th><th>TIER 10</th></tr>';for(const q of prestigeLabResults.filter(q=>q.stage===2)){let t10=q.tierTimes.find(t=>t.tier===10);h+='<tr><td>'+q.name+'</td><td align="right">'+fmt(q.purchases)+'</td><td align="right">'+labTime(q.maxGap)+'</td><td align="right">'+labTime(t10?.time??null)+'</td></tr>'}h+='</table>';return h;
-}
-function labPanel(){
- let h=prestigeLabPanel()+boostLabPanel()+'<div class="section gold">◈ BALANCE LAB · FAST SIMULATION</div><div class="dim small">17 strategies, each simulated from ₿0 for one in-game year. One selected shop item is bought repeatedly with BUY MAX; no purchases in the baseline. Deterministic expected-value recruitment and jackpots; automatic target switching. No tapping, boosts, prestige or ascension resets. <strong>Simulation does not alter your save.</strong></div>';
- h+='<div style="margin:10px 0"><button data-run-lab style="min-height:36px">▶ RUN 1-YEAR SIMULATION</button> <span id="lab-status" class="dim small">'+(labBusy?'RUNNING':labResults?'LAST SWEEP READY':'NOT RUN')+'</span></div>';
- if(!labResults)return h;
- h+='<div class="dim small">Validation: '+(labVerification?.length?labVerification.length+' warning(s): '+labVerification.slice(0,3).join('; '):'PASS · 17 strategies, milestones and price arithmetic')+'</div>';
- h+='<div style="display:flex;gap:6px;margin:7px 0"><button data-lab-range="3600" class="'+(labGraphWindow===3600?'sel':'')+'">FIRST HOUR</button><button data-lab-range="31536000" class="'+(labGraphWindow===31536000?'sel':'')+'">FULL YEAR</button></div>';
- h+='<canvas id="lab-chart" role="img" aria-label="Comparison of total lifetime Bitcoin over simulated time" style="width:100%;height:220px;display:block;background:#07140e;border:1px solid #31543a;border-radius:8px"></canvas>';
- h+='<div class="dim small">Graph: lifetime BTC on a logarithmic scale, for the selected time window. Curve colors match table labels.</div>';
- const colors=['#9da7aa','#a5f0b1','#77b4fd','#f3ca70','#e994b5','#9be1db','#cfaaed','#ffad83','#7fe39d','#c3bdff','#ef8a82','#a6b0db','#77d19c','#f0c57a','#b3ade4','#c4e887','#f09ed7'];
- h+='<div style="overflow-x:auto"><table style="width:100%;font-size:10px;border-collapse:collapse"><thead><tr><th style="text-align:left;padding:6px">ITEM ONLY</th><th>1 DAY BTC</th><th>30 DAYS BTC</th><th>1 YEAR BTC</th><th>MAX LV</th><th>TO LV9999</th><th>TIER 10</th></tr></thead><tbody>';
- for(let i=0;i<labResults.length;i++){let q=labResults[i],day=q.snapshots.find(v=>v.time>=86400-1e-5),month=q.snapshots.find(v=>v.time>=2592000-1e-5),year=q.snapshots.at(-1);
- h+='<tr style="border-top:1px solid #243f30"><td style="color:'+colors[i]+';padding:7px 2px">'+q.name+'</td><td style="text-align:right">'+fmt(day?.earned||0)+'</td><td style="text-align:right">'+fmt(month?.earned||0)+'</td><td style="text-align:right">'+fmt(year?.earned||q.state.earned)+'</td><td style="text-align:right">'+fmt(q.state.level)+'</td><td style="text-align:right">'+labTime(q.state.firstAscension)+'</td></tr>';
- }
- h+='</tbody></table></div>';
- const maxed=labResults.filter(v=>v.state.firstAscension!==null);h+='<div class="dim small" style="margin-top:7px">First ascension reached within one simulated year: '+maxed.length+'/16 items'+(labResults.some(x=>x.limitReached)?' · WARNING: iteration limit hit; some results are incomplete':'')+'. Estimates are directional, not exact gameplay forecasts.</div>';
- return h;
-}
-function drawLabGraph(){const el=$('lab-chart');if(!el||!labResults)return;const rect=el.getBoundingClientRect(),w=Math.max(260,Math.round(rect.width)),h=220,dpr=Math.min(2,devicePixelRatio||1);el.width=w*dpr;el.height=h*dpr;const c=el.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);const left=45,right=w-12,top=14,bottom=h-27;
- const max=Math.max(1,...labResults.map(r=>{let p=r.points.find(v=>v.time>=labGraphWindow);return p?.earned??r.state.earned})),ymax=Math.log10(1+max);const px=t=>left+Math.max(0,Math.min(1,t/labGraphWindow))*(right-left),py=v=>bottom-Math.log10(1+Math.max(0,v))/ymax*(bottom-top);
- c.font='10px monospace';c.textBaseline='middle';c.fillStyle='#aec9b5';c.strokeStyle='#254733';c.lineWidth=1;
- for(let i=0;i<=4;i++){let y=top+(bottom-top)*i/4;c.beginPath();c.moveTo(left,y);c.lineTo(right,y);c.stroke();c.fillText(fmt(Math.pow(10,ymax*(1-i/4))-1),3,y)}
- for(const [t,l] of (labGraphWindow===3600?[[0,'0'],[900,'15m'],[1800,'30m'],[2700,'45m'],[3600,'1h']]:[[0,'0'],[86400,'1d'],[2592000,'30d'],[15768000,'6mo'],[31536000,'1y']])){let x=px(t);c.beginPath();c.moveTo(x,top);c.lineTo(x,bottom);c.stroke();c.fillText(l,Math.min(w-28,x+2),h-12)}
- const colors=['#9da7aa','#a5f0b1','#77b4fd','#f3ca70','#e994b5','#9be1db','#cfaaed','#ffad83','#7fe39d','#c3bdff','#ef8a82','#a6b0db','#77d19c','#f0c57a','#b3ade4','#c4e887','#f09ed7'];
- labResults.forEach((r,i)=>{c.beginPath();c.strokeStyle=colors[i];c.lineWidth=i===0?1.4:1.6;c.globalAlpha=.9;let pts=r.points;let drawn=0;pts.forEach(p=>{if(p.time>labGraphWindow+1e-6)return;if(drawn++===0)c.moveTo(px(p.time),py(p.earned));else c.lineTo(px(p.time),py(p.earned))});c.stroke()});c.globalAlpha=1;
-}
-
 function intelPanel(){
  const num=Object.values(s.ascensions).reduce((a,b)=>a+(Number(b)||0),0);
  const complete=intelAwards.filter(a=>s.intel.unlockedAwards[a[0]]).length;
@@ -845,7 +653,6 @@ function intelPanel(){
   h+='<div class="planner-item"><div class="between"><strong>'+x[1]+'</strong><span class="purple">LV '+fmt(n)+'/9,999</span></div><div class="track"><div class="fill" style="width:'+progress.toFixed(2)+'%;background:#a8c6ff"></div></div><div class="dim small">Remaining ₿'+fmtBTC(remaining)+' · '+eta+'</div></div>';
  }
  h+='</div>';
- h+=labPanel();
  h+='<div class="section gold">◈ ACHIEVEMENT ARCHIVE · '+complete+'/'+intelAwards.length+'</div><div class="dim small">Achievements are collectible titles, not additional multipliers. This keeps economic balancing predictable.</div>';
  for(const [id,title,desc,fn,goal] of intelAwards){const current=Math.min(goal,fn(s)),finished=!!s.intel.unlockedAwards[id];h+='<div class="intel-badge '+(finished?'complete':'')+'"><div class="between"><strong class="'+(finished?'gold':'green')+'">'+(finished?'★ ':'○ ')+title+'</strong><span class="dim small">'+fmt(current)+'/'+fmt(goal)+'</span></div><div class="dim small">'+desc+'</div><div class="track"><div class="fill" style="width:'+(100*current/goal).toFixed(2)+'%;background:'+(finished?'#edc576':'#79dfa0')+'"></div></div></div>'}
  h+='<div class="section gold">◈ NETWORK JOURNAL</div><div class="dim small">Your last 32 major events, newest first.</div>';
@@ -918,7 +725,7 @@ function spawnBubble(){removeBubble();floating=document.createElement('button');
 function fireEvent(t){if(!quota(t))return;let type=Math.random()<.5?'credit':'breakthrough';s.events.push(t);s.nextEvent=t+65000+Math.random()*115000;s.liveEvent={type,until:t+(type==='credit'?13000:5000)};if(type==='credit'){spawnBubble();log('[SIGNAL] ◆ CREDIT DROP — TAP THE BUBBLE')}else log('[BREAKTHROUGH] ×5 MANUAL TAPS FOR 5 SECONDS');save()}
 function updateEvents(){let t=now();if(s.liveEvent&&t>=s.liveEvent.until){if(s.liveEvent.type==='credit'){removeBubble();log('[CREDIT DROP] Expired')}else log('[BREAKTHROUGH] Normal power restored');s.liveEvent=null}if(s.liveEvent?.type==='credit'){if(!floating&&!document.hidden)spawnBubble();else placeBubble()}if(!s.liveEvent&&t>=s.nextEvent&&!document.hidden){let r=root.getBoundingClientRect();if(quota(t)){if(r.bottom>100&&r.top<innerHeight-100)fireEvent(t)}else s.nextEvent=nextEligible(t)+1000+Math.random()*14000}}
 let lastConsole='',lastTarget='',lastMission='',lastContract='';function missionText(){let o=Ops.find(x=>!done(x[0])&&s.unlocked>=x[2]);return o?'◈ '+o[1]+' · '+(s.ops[o[0]]||0)+'/'+o[3]+' T'+o[2]+' BREACHES':Ops.every(x=>done(x[0]))?'◈ ECLIPSE CLEARANCE COMPLETE':'◈ CLASSIFIED OPS · UNLOCK HIGHER TIERS'}
-function draw(full){syncCompact();$('btc').textContent='₿ '+fmt(s.btc);$('btc').style.fontSize=Math.min(33,Math.max(17,33*17/Math.max(17,$('btc').textContent.length)))+'px';$('pc').textContent=fmt(s.pc);$('bps').textContent='₿'+fmt(production())+'/sec · estimated';$('hosts').textContent=fmt(s.hosts);$('power').textContent=fmt(power());$('prestiges').textContent=fmt(s.prestiges);$('time').textContent=duration().toFixed(2)+'s';$('reward').textContent='₿'+fmt(reward(s.target));$('bp').textContent=(100*Math.min(1,s.progress)).toFixed(1)+'%';$('dp').textContent=s.trace.toFixed(1)+'%';$('tier').textContent='TIER '+s.tier+'/10';$('trait').textContent='◆ '+traitFor(s.tier)[0]+(s.tier===6?' · '+(s.target?.patrol>1?'PATROL ACTIVE':'PATROL QUIET'):'');$('mode').textContent='DIRECTIVE: '+mode()[0];$('status').textContent=(s.eco?'ECO':'ADAPTIVE')+' · '+['LIVE','BALANCED','LOW','MINIMAL'][perf()];$('eco').textContent=s.eco?'ECO ON':'ECO OFF';$('speed').textContent=s.speed+'×';let name=s.target?.name||'SCANNING';if(name!==lastTarget){$('target').textContent=name;lastTarget=name}let logs=s.logs.slice(-4).join('\n');if(logs!==lastConsole||full){$('console').replaceChildren(...s.logs.slice(-4).map(t=>{let d=document.createElement('div');d.textContent=t;return d}));lastConsole=logs}let mission=missionText();if(mission!==lastMission){$('mission').textContent=mission;lastMission=mission}let c=s.contract?'◇ '+s.contract.name+' · '+s.contract.progress+'/'+s.contract.need:'◇ CONTRACT READY · OPEN TARGETS';if(c!==lastContract){$('contract').textContent=c;lastContract=c}let breaking=s.liveEvent?.type==='breakthrough'&&now()<s.liveEvent.until,rare=s.rare&&now()<s.rare.until;$('alert').style.display=breaking||rare?'flex':'none';$('claim').style.display=rare&&!breaking?'block':'none';if(breaking){$('alerttitle').textContent='⚡ BREAKTHROUGH ×5';$('alertdesc').textContent='Manual taps supercharged';$('alerttime').textContent=Math.max(0,(s.liveEvent.until-now())/1000).toFixed(1)+'s'}else if(rare){$('alerttitle').textContent='✦ RARE SIGNAL';$('alertdesc').textContent=s.rare.type==='wallet'?'Exposed wallet cache':'Dormant node cluster';$('alerttime').textContent=Math.max(0,Math.ceil((s.rare.until-now())/1000))+'s'}$('tap').classList.toggle('hot',!!breaking);$('taptext').textContent=breaking?'×5 TAP POWER':'TAP TO HACK';if(full){const openGroups=Array.from($('shop').querySelectorAll('details.compact-group[open]')).map(d=>d.querySelector('summary').textContent);$('shop').innerHTML=panel();for(const d of $('shop').querySelectorAll('details.compact-group'))if(openGroups.includes(d.querySelector('summary').textContent))d.open=true;root.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('sel',b.dataset.tab===(compact?compactScreen:s.tab)));if(labResults&&s.tab==='targets'&&intelView==='dashboard'&&(!compact||compactScreen==='targets'))drawLabGraph()}drawRail()}
+function draw(full){syncCompact();$('btc').textContent='₿ '+fmt(s.btc);$('btc').style.fontSize=Math.min(33,Math.max(17,33*17/Math.max(17,$('btc').textContent.length)))+'px';$('pc').textContent=fmt(s.pc);$('bps').textContent='₿'+fmt(production())+'/sec · estimated';$('hosts').textContent=fmt(s.hosts);$('power').textContent=fmt(power());$('prestiges').textContent=fmt(s.prestiges);$('time').textContent=duration().toFixed(2)+'s';$('reward').textContent='₿'+fmt(reward(s.target));$('bp').textContent=(100*Math.min(1,s.progress)).toFixed(1)+'%';$('dp').textContent=s.trace.toFixed(1)+'%';$('tier').textContent='TIER '+s.tier+'/10';$('trait').textContent='◆ '+traitFor(s.tier)[0]+(s.tier===6?' · '+(s.target?.patrol>1?'PATROL ACTIVE':'PATROL QUIET'):'');$('mode').textContent='DIRECTIVE: '+mode()[0];$('status').textContent=(s.eco?'ECO':'ADAPTIVE')+' · '+['LIVE','BALANCED','LOW','MINIMAL'][perf()];$('eco').textContent=s.eco?'ECO ON':'ECO OFF';$('speed').textContent=s.speed+'×';let name=s.target?.name||'SCANNING';if(name!==lastTarget){$('target').textContent=name;lastTarget=name}let logs=s.logs.slice(-4).join('\n');if(logs!==lastConsole||full){$('console').replaceChildren(...s.logs.slice(-4).map(t=>{let d=document.createElement('div');d.textContent=t;return d}));lastConsole=logs}let mission=missionText();if(mission!==lastMission){$('mission').textContent=mission;lastMission=mission}let c=s.contract?'◇ '+s.contract.name+' · '+s.contract.progress+'/'+s.contract.need:'◇ CONTRACT READY · OPEN TARGETS';if(c!==lastContract){$('contract').textContent=c;lastContract=c}let breaking=s.liveEvent?.type==='breakthrough'&&now()<s.liveEvent.until,rare=s.rare&&now()<s.rare.until;$('alert').style.display=breaking||rare?'flex':'none';$('claim').style.display=rare&&!breaking?'block':'none';if(breaking){$('alerttitle').textContent='⚡ BREAKTHROUGH ×5';$('alertdesc').textContent='Manual taps supercharged';$('alerttime').textContent=Math.max(0,(s.liveEvent.until-now())/1000).toFixed(1)+'s'}else if(rare){$('alerttitle').textContent='✦ RARE SIGNAL';$('alertdesc').textContent=s.rare.type==='wallet'?'Exposed wallet cache':'Dormant node cluster';$('alerttime').textContent=Math.max(0,Math.ceil((s.rare.until-now())/1000))+'s'}$('tap').classList.toggle('hot',!!breaking);$('taptext').textContent=breaking?'×5 TAP POWER':'TAP TO HACK';if(full){const openGroups=Array.from($('shop').querySelectorAll('details.compact-group[open]')).map(d=>d.querySelector('summary').textContent);$('shop').innerHTML=panel();for(const d of $('shop').querySelectorAll('details.compact-group'))if(openGroups.includes(d.querySelector('summary').textContent))d.open=true;root.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('sel',b.dataset.tab===(compact?compactScreen:s.tab)));}drawRail()}
 root.addEventListener('click',e=>{let b=e.target.closest('button');if(!b||b.disabled)return;
  // Preserve the clicked row's exact viewport Y coordinate when its HTML is rebuilt.
  // This also works when BUY changes into ASCEND at level 9999.
@@ -932,7 +739,7 @@ root.addEventListener('click',e=>{let b=e.target.closest('button');if(!b||b.disa
   const displacement=current.getBoundingClientRect().top-tappedY;
   if(Math.abs(displacement)>.5)window.scrollBy({top:displacement,behavior:'instant'});
  };
- try{if(b.id==='compact-settings')settingsDialog();else if(b.id==='compact-close')$('compact-dialog').close();else if(b.id==='compact-toggle'){compact=!compact;try{localStorage.setItem('ghostnet-ui-mode',compact?'compact':'advanced')}catch(e){}compactScreen='hack';$('compact-dialog').close();draw(true);window.scrollTo(0,0)}else if(b.id==='compact-eco'){s.eco=!s.eco;draw(true);settingsDialog()}else if(b.id==='compact-save'){save();$('compact-dialog').close();draw(true)}else if(b.id==='compact-speed'){s.speed=s.speed===1?10:s.speed===10?100:1;draw(true);settingsDialog()}else if(b.dataset.iteminfo){let d=shopParts(b.dataset.iteminfo);if(d)openCompactDialog('info','<h2>'+d.x[1]+'</h2><p>'+d.x[4]+'</p><p>'+d.current+'</p><p>'+d.future+'</p><p>'+abilityDescription(b.dataset.iteminfo)+'</p>'+itemMilestoneMarkup(b.dataset.iteminfo,d.n))}else if(b.dataset.entryinfo){let row=b.closest('.entry');openCompactDialog('info','<h2>'+row.querySelector('.name').innerHTML+'</h2>'+Array.from(row.querySelectorAll('.desc,.current,.next')).map(e=>'<p>'+e.innerHTML+'</p>').join(''))}else if(b.id==='tap')tap();else if(b.id==='claim')claimRare();else if(b.dataset.ad){if($('compact-dialog').open)$('compact-dialog').close();if(onAndroid){androidAd(b.dataset.ad)}else{let a=A.find(x=>x[0]===b.dataset.ad);if(a&&!on(a[0])){s.ads[a[0]]=now()+a[2]*1000;s.intel.adActivations=(s.intel.adActivations||0)+1;log('[BOOST] '+a[1]);draw(true)}}}else if(b.id==='pcbtn'){s.tab='premium';compactScreen='premium';draw(true);window.scrollTo(0,0)}else if(b.dataset.tab){compactScreen=b.dataset.tab;if(b.dataset.tab!=='hack')s.tab=b.dataset.tab;draw(true);window.scrollTo(0,0)}else if(b.hasAttribute('data-android-signin')){androidSignIn()}else if(b.hasAttribute('data-cloud-upload')){androidUpload()}else if(b.hasAttribute('data-cloud-download')){androidDownload()}else if(b.hasAttribute('data-export-save')){downloadSave()}else if(b.hasAttribute('data-import-save')){if($('compact-dialog').open)$('compact-dialog').close();$('savefile').click()}else if(b.hasAttribute('data-restore-save')){restoreBackup()}else if(b.hasAttribute('data-economy-report')){exportEconomyReport()}else if(b.hasAttribute('data-run-lab'))runBalanceLab();else if(b.hasAttribute('data-prestige-lab'))runPrestigeLab();else if(b.hasAttribute('data-boost-lab'))runBoostLab();else if(b.dataset.labRange){labGraphWindow=Number(b.dataset.labRange);draw(true)}else if(b.dataset.intel){intelView=b.dataset.intel;dailySync();draw(true)}else if(b.hasAttribute('data-daily-login'))claimDailyLogin();else if(b.dataset.dailyQuest)claimDailyQuest(b.dataset.dailyQuest);else if(b.hasAttribute('data-daily-offer'))claimDailyOffer();else if(b.dataset.storePreview){alert('This product is a pricing preview. Real-money purchases are not yet available. No payment was attempted.')}else if(b.dataset.bulk){s.bulk=b.dataset.bulk==='max'?'max':Number(b.dataset.bulk);draw(true)}else if(b.dataset.buy)buy(b.dataset.buy);else if(b.dataset.ascend)ascend(b.dataset.ascend);else if(b.dataset.perk)buyPerk(b.dataset.perk);else if(b.dataset.premium)buyPremium(b.dataset.premium);else if(b.dataset.pcrepeat)buyRepeat(b.dataset.pcrepeat);else if(b.dataset.pcconsume)buyConsumable(b.dataset.pcconsume);else if(b.dataset.research)buyResearch(b.dataset.research);else if(b.dataset.grant){s.pc+=Number(b.dataset.grant);log('[DEMO] +◆'+b.dataset.grant);draw(true)}else if(b.dataset.mode){s.directive=b.dataset.mode;log('[DIRECTIVE] '+mode()[0]);draw(true)}else if(b.dataset.contract){if(!s.contract){let c=contractOffers().find(x=>x.id===b.dataset.contract);if(c){let bounty=T[c.tier-1][1]*30*(1+.1*s.contractCycle);s.contract={...c,progress:0,bounty,rewardText:c.pay==='btc'?'₿'+fmt(bounty):c.pay==='pc'?'◆2 PC':'×2 speed / 90s'};log('[CONTRACT] '+c.name+' ACCEPTED');draw(true)}}}else if(b.dataset.tier){s.tier=Number(b.dataset.tier);spawn();log('[TARGET] TIER '+s.tier+' selected');draw(true)}else if(b.hasAttribute('data-prestige'))prestige();else if(b.id==='eco'){s.eco=!s.eco;draw(true)}else if(b.id==='speed'){s.speed=s.speed===1?10:s.speed===10?100:1;draw(true)}else if(b.id==='save'){log(save()?'[SYS] Saved locally':'[SYS] Storage unavailable');draw(true)} } finally {restoreClickedRow()} });
+ try{if(b.id==='compact-settings')settingsDialog();else if(b.id==='compact-close')$('compact-dialog').close();else if(b.id==='compact-toggle'){compact=!compact;try{localStorage.setItem('ghostnet-ui-mode',compact?'compact':'advanced')}catch(e){}compactScreen='hack';$('compact-dialog').close();draw(true);window.scrollTo(0,0)}else if(b.id==='compact-eco'){s.eco=!s.eco;draw(true);settingsDialog()}else if(b.id==='compact-save'){save();$('compact-dialog').close();draw(true)}else if(b.id==='compact-speed'){s.speed=s.speed===1?10:s.speed===10?100:1;draw(true);settingsDialog()}else if(b.dataset.iteminfo){let d=shopParts(b.dataset.iteminfo);if(d)openCompactDialog('info','<h2>'+d.x[1]+'</h2><p>'+d.x[4]+'</p><p>'+d.current+'</p><p>'+d.future+'</p><p>'+abilityDescription(b.dataset.iteminfo)+'</p>'+itemMilestoneMarkup(b.dataset.iteminfo,d.n))}else if(b.dataset.entryinfo){let row=b.closest('.entry');openCompactDialog('info','<h2>'+row.querySelector('.name').innerHTML+'</h2>'+Array.from(row.querySelectorAll('.desc,.current,.next')).map(e=>'<p>'+e.innerHTML+'</p>').join(''))}else if(b.id==='tap')tap();else if(b.id==='claim')claimRare();else if(b.dataset.ad){if($('compact-dialog').open)$('compact-dialog').close();if(onAndroid){androidAd(b.dataset.ad)}else{let a=A.find(x=>x[0]===b.dataset.ad);if(a&&!on(a[0])){s.ads[a[0]]=now()+a[2]*1000;s.intel.adActivations=(s.intel.adActivations||0)+1;log('[BOOST] '+a[1]);draw(true)}}}else if(b.id==='pcbtn'){s.tab='premium';compactScreen='premium';draw(true);window.scrollTo(0,0)}else if(b.dataset.tab){compactScreen=b.dataset.tab;if(b.dataset.tab!=='hack')s.tab=b.dataset.tab;draw(true);window.scrollTo(0,0)}else if(b.hasAttribute('data-android-signin')){androidSignIn()}else if(b.hasAttribute('data-cloud-upload')){androidUpload()}else if(b.hasAttribute('data-cloud-download')){androidDownload()}else if(b.hasAttribute('data-export-save')){downloadSave()}else if(b.hasAttribute('data-import-save')){if($('compact-dialog').open)$('compact-dialog').close();$('savefile').click()}else if(b.hasAttribute('data-restore-save')){restoreBackup()}else if(b.hasAttribute('data-economy-report')){exportEconomyReport()}else if(b.dataset.intel){intelView=b.dataset.intel;dailySync();draw(true)}else if(b.hasAttribute('data-daily-login'))claimDailyLogin();else if(b.dataset.dailyQuest)claimDailyQuest(b.dataset.dailyQuest);else if(b.hasAttribute('data-daily-offer'))claimDailyOffer();else if(b.dataset.storePreview){alert('This product is a pricing preview. Real-money purchases are not yet available. No payment was attempted.')}else if(b.dataset.bulk){s.bulk=b.dataset.bulk==='max'?'max':Number(b.dataset.bulk);draw(true)}else if(b.dataset.buy)buy(b.dataset.buy);else if(b.dataset.ascend)ascend(b.dataset.ascend);else if(b.dataset.perk)buyPerk(b.dataset.perk);else if(b.dataset.premium)buyPremium(b.dataset.premium);else if(b.dataset.pcrepeat)buyRepeat(b.dataset.pcrepeat);else if(b.dataset.pcconsume)buyConsumable(b.dataset.pcconsume);else if(b.dataset.research)buyResearch(b.dataset.research);else if(b.dataset.grant){s.pc+=Number(b.dataset.grant);log('[DEMO] +◆'+b.dataset.grant);draw(true)}else if(b.dataset.mode){s.directive=b.dataset.mode;log('[DIRECTIVE] '+mode()[0]);draw(true)}else if(b.dataset.contract){if(!s.contract){let c=contractOffers().find(x=>x.id===b.dataset.contract);if(c){let bounty=T[c.tier-1][1]*30*(1+.1*s.contractCycle);s.contract={...c,progress:0,bounty,rewardText:c.pay==='btc'?'₿'+fmt(bounty):c.pay==='pc'?'◆2 PC':'×2 speed / 90s'};log('[CONTRACT] '+c.name+' ACCEPTED');draw(true)}}}else if(b.dataset.tier){s.tier=Number(b.dataset.tier);spawn();log('[TARGET] TIER '+s.tier+' selected');draw(true)}else if(b.hasAttribute('data-prestige'))prestige();else if(b.id==='eco'){s.eco=!s.eco;draw(true)}else if(b.id==='speed'){s.speed=s.speed===1?10:s.speed===10?100:1;draw(true)}else if(b.id==='save'){log(save()?'[SYS] Saved locally':'[SYS] Storage unavailable');draw(true)} } finally {restoreClickedRow()} });
 const canvas=$('rain'),ctx=canvas.getContext('2d');let w=1,h=1,streams=[],streamClock=0,paintClock=0;function resize(){let r=root.getBoundingClientRect(),d=Math.min(2,devicePixelRatio||1);w=r.width;h=r.height;canvas.width=Math.max(1,Math.ceil(w*d));canvas.height=Math.max(1,Math.ceil(h*d));ctx.setTransform(d,0,0,d,0,0)}resize();if('ResizeObserver'in window)new ResizeObserver(resize).observe(root);
 const reduceMotion=window.matchMedia?window.matchMedia('(prefers-reduced-motion: reduce)'):null;
 function rain(dt){if(reduceMotion?.matches)return;let l=perf(),fps=[12,8,4,2][l];paintClock+=dt;if(paintClock<1/fps)return;let elapsed=paintClock;paintClock=0;ctx.clearRect(0,0,w,h);let density=1+Math.log10(1+Math.max(0,production())*10000),gap=Math.max(.7,5/density),limit=[20,14,8,3][l];streamClock+=elapsed;let count=0;while(streamClock>=gap&&streams.length<limit&&count++<2){streamClock-=gap;streams.push({x:Math.floor(Math.random()*Math.max(1,w/15))*15,y:-20,speed:45+Math.random()*65,len:5+Math.floor(Math.random()*10),seed:Math.random()*1000})}streamClock=Math.min(streamClock,gap);ctx.font='12px monospace';ctx.textBaseline='top';let chars='01ABCDEF#$';for(let i=streams.length-1;i>=0;i--){let v=streams[i];v.y+=v.speed*elapsed;for(let j=0;j<v.len;j++){let y=v.y-j*15;if(y<0||y>h)continue;let z=Math.abs(Math.sin(v.seed+j*21+Math.floor(v.y/28)*13));ctx.fillStyle=z<.025?'rgba(243,187,89,.13)':j===0?'rgba(158,255,180,.2)':'rgba(94,205,118,'+(.12*(1-j/v.len))+')';ctx.fillText(z<.025?'₿':chars[Math.floor(z*chars.length)%chars.length],v.x,y)}if(v.y-v.len*15>h+20)streams.splice(i,1)}}
