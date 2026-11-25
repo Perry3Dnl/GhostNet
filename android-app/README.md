@@ -1,6 +1,6 @@
-# GHOSTNET Android (v3.8 development source)
+# GHOSTNET Android (v3.9 release candidate source)
 
-A single-player Android wrapper for GHOSTNET v3.7. It preserves the four-tab UI, shop, single-player simulation and existing browser storage save format. No server or public website is required.
+A single-player Android wrapper for GHOSTNET v3.7. It uses the compact four-tab UI, shop, single-player simulation and existing browser storage save format. No server or public website is required.
 
 
 ## Build a debug APK in GitHub Actions
@@ -27,9 +27,9 @@ The current source repository intentionally contains **the generation template**
 ## Player modes
 
 - **Guest (default):** play offline with device-local saves, daily rewards, Zero Day and shop upgrades. No login and no checkout.
-- **Google Play Games player (optional):** user connects from ZERO DAY, then may explicitly upload the current save or explicitly restore the cloud snapshot. No silent overwrite. Upload/download requires Android Play Games Services setup.
+- **Google Play Games player (optional):** user connects from Settings, then may explicitly upload the current save or explicitly restore the cloud snapshot. No silent overwrite. Upload/download requires Android Play Games Services setup.
 - **Rewarded ads:** Android plugin loads Google's **TEST rewarded ads**; rewards are granted only when the native SDK reports earning a reward. Browser edition retains demo boosts. No production advertising is enabled.
-- **Payments:** price previews are intentionally disabled until the exact in-app products are configured and Billing is tested. A Java Billing 8 dependency is declared for the next phase; *no money can be charged by this build*. This avoids pretending that a purchase is processed when no Play Console account/products exist.
+- **Payments:** the disabled price preview is not shown to players until the exact in-app products are configured and Billing is tested. A Java Billing 8 dependency is declared for the next phase; *no money can be charged by this build*. This avoids pretending that a purchase is processed when no Play Console account/products exist.
 
 ## Required Play Console configuration
 
@@ -50,3 +50,7 @@ This repository is for development/storage; do **not** enable GitHub Pages.
 After the debug APK works, follow [the Google Play release checklist](../play-store/RELEASE_CHECKLIST.md). The [manual signed-AAB workflow](../.github/workflows/android-release-aab.yml) requires four signing secrets and creates an AAB artifact; it does not upload the bundle. Store listing copy, pricing catalog, policy review draft, artwork and screenshots guidance are under [play-store/](../play-store/).
 
 Capacitor 8 targets Android API 36 by default. Check the generated `android/variables.gradle` and release AAB metadata before submission. Google Play Games, AdMob and purchases remain unconfigured until service IDs and genuine test flows are added. No real purchases can be processed by the current client.
+
+## Release candidate checks
+
+Developer simulation panels, economy CSV export, free-credit debug grant handler and accelerated simulation controls have been removed from the Android player interface. Imported and existing saves normalize simulation speed to 1× while preserving progress. Earned PC upgrades and legitimate boost effects remain unchanged. Payment preview cards are not rendered until Google Billing is implemented. Release signing, Play Games configuration, AdMob consent and live IDs, Billing fulfillment and real-device acceptance tests remain release gates; the debug build alone is not a signed release candidate for distribution.
